@@ -1,0 +1,26 @@
+{% if result %}
+{% for item in result %}
+<a class="item-area bglight1" href="{{item.url}}">
+    <div class="title-area">
+        <div class="title" title="{{ item.title }}" style="word-wrap:break-word;text-overflow:hidden;">
+            <div class="icon mr-1" style="display:inline-block;">@</div>{{item.title}}
+        </div>
+    </div>
+    <div class="url small no-wrap" style="word-wrap:normal;">
+        {{ item.url }}
+        </div>
+    <div class="description-area small">
+    {{ item.desc }}
+    </div>
+</a>
+<style type="text/css">
+    a.item-area {
+        text-decoration:none;
+    }
+    .item-area .description-area{
+        color:black;
+
+    }
+</style>
+{% endfor %}
+{% endif %}

@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+{% load static %}
+<html>
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>KHOJ | A local one</title>
+	<link rel="shortcut icon" href="{% static 'home/images/khoj_icon.ico' %}">
+	<link type="text/css" rel="stylesheet" href="{% static 'home/bootstrap431/css/bootstrap.min.css'%}">
+</head>
+<body style="min-height:500px;">
+	<div style="flex-direction:column;position:absolute;word-wrap:unset;background: center;direction:">
+		<div style="display:flex;flex-wrap:wrap;font-size:45px;">
+			<div class="dateTime" style="padding:0px;"></div>
+			<div style="display:flex;flex-direction:column;font-size:20px;">
+				<div class="dateTime" style="position:relative;top:12px;"></div>
+				<div class="dateTime"style="position:relative;top:-2px;"></div>
+			</div>
+			<div class="dateTime ml-2"></div>
+		</div>
+	</div>
+	
+	<div class="container">
+		<form id="searchForm" style="position:relative;" method="GET" action="{% url 'home:result' %}">
+			<img src="{% static 'home/images/khoj_logo.png' %}" height="80px" class="d-block m-auto pb-4">
+			<div class="form-group row m-auto" style="position:relative;">
+				<div class="col-lg-3 col-sm-1"></div>
+				<div class="input-group col-lg-6 col-sm-10 row" style="transform:scale(1.2);position:relative;">
+	        		<div class="input-group col-12">
+						<input type="text" class="form-control" name="search-text" id= "textInput"placeholder="KHOJ Search" autocomplete="off" aria-autocomplete="none">
+						<div class="input-group-prepend">
+							<button type="submit" class="bg-dark text-white input-group-text"><img src="{% static 'home/images/khoj_icon.ico' %}" width="20px"></button>
+						</div>
+					</div>
+					<div class="col-12" id="recommend" style="position:relative;transform:translate(0,100%);">
+						<div class="col-12" id="recommend1" style="position:absolute;z-index:1010;"></div>
+					</div>
+				</div>
+				<div class="col-lg-3 col-sm-1"></div>
+			</div>
+		</form>
+		
+	</div>
+</body>
+<script type="text/javascript" src="{% static 'home/js/my_js.js' %}"></script>
+<script src="{% static 'home/jquery/jquery.min.js' %}"></script>
+<script type="text/javascript">
+	var timshow=document.getElementsByClassName("dateTime");
+	var ctu=-1;
+	var ctu1=-1;
+	var mdicten=["January", "February","Machr","April","May","June","July","August","September","October","November","December"];
+	var mdictnp=["Baisakh","Jestha","Ashar","Shrawan","Bhadra","Aswin","Kartik","Mangsir","Poush","Falgun","Chaitra"]
+	window.onload=start;
+	function settime(){
+		var gtime=new Date();
+		var chr=gtime.getHours();
+		var gh=checkddgt(chr>12?chr-12:chr);
+		var gm=checkddgt(gtime.getMinutes());
+		var gmt=gtime.getMonth();
+		var gd=gtime.getDate();
+		timshow[0].innerHTML=gh;
+		timshow[1].innerHTML=gm;
+		timshow[3].innerHTML=mdicten[gmt].toUpperCase()+" "+gd;
+			if(chr >=12 && chr<24){
+				if(ctu1==1||ctu1==-1){
+					timshow[2].innerHTML="PM";
+				}
+				ctu1=0;
+			}
+			
+			else{
+				if(ctu1==0||ctu1==-1){
+					timshow[2].innerHTML="AM";
+				}
+				ctu1=1;
+			}
+			setTimeout(settime,1000);
+			function checkddgt(val){
+				if(val<10){
+					return "0"+val.toString();
+				}
+				return val.toString();
+			}
+		}
+	window.onresize=arrange;
+	function start(){
+		settime();
+		set_bg();
+		arrange();
+		function set_bg(){
+			var ctime=new Date();
+			var chr=ctime.getHours();
+			if(chr >=18 || chr<6){
+				if(ctu==1||ctu==-1){
+					var i;
+					for(i=0;i<timshow.length;i++){
+						timshow[i].style.color="#ccc";
+					}
+					document.body.style.background="url({% static 'home/images/night_bg.jpg' %}) no-repeat";
+					var textbox=document.getElementById("textInput");
+					textbox.style.background="#333333";
+					textbox.style.color="white";
+				}
+				ctu=0;
+			}
+			else{
+				if(ctu==0||ctu==-1){
+					var i;
+					for(i=0;i<timshow.length;i++){
+						timshow[i].style.color="#333";
+					}
+					document.body.style.background="url({% static 'home/images/day_bg.jpg' %}) no-repeat";
+				}
+				ctu=1;
+			}
+				
+		}	
+	}
+	function arrange(){
+		var formb=document.getElementById('searchForm');
+		formb.style.top=window.innerHeight/2+"px";
+		formb.style.transform="translate(0,-80%)";
+	}
+	document.getElementById("textInput").addEventListener("keyup",fetchrec,false);
+	var recommend = document.getElementById('recommend1');
+	function fetchrec(){
+		var text=document.getElementById("textInput").value;
+		$.ajax({
+			url:"{%  url 'home:recommend' %}",
+			data:{"text":text},
+			method:"GET",
+			success:function(result){
+				var arr=[];
+				var ast="";
+				arr=result.split(',');
+				for(i=0;i<arr.length;i++){
+					ast+='<div class="recommend-item" style="display:block;">'+arr[i]+'</div>';
+				}
+				recommend.innerHTML=ast;
+			}
+			});
+	}
+
+</script>
+</html>

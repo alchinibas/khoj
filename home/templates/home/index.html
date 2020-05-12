@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+{% load static %}
+<html>
+<head>
+	<title>Home | NSE</title>
+    <link rel="shortcut icon" href="{% static 'home/images/khoj_icon.ico' %}">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <link rel="stylesheet" href="{% static 'home/style.css' %}" type="text/css">
+    <link rel="stylesheet" href="{% static 'bootstrap431/css/bootstrap.min.css' %}" type="text/css">
+</head>
+<body>
+ <div class="container">
+     <div class="holder">
+         <div class="logo">
+             <img src="{% static 'home/images/khoj_logo.png' %}" height="60px">
+         </div>
+             <form method="get" action="{% url 'home:result' %}" id="search-form">
+                 {% csrf_token %}
+                 <div class="search-field row">
+                     <div class="col-lg-3">
+                     </div>
+                     <div class="col-lg-6">
+                         <div class="row sfield-outer">
+                             <input type="text" class="col-11" name="search-text" placeholder="KHOJ SEARCH..." id="sfield">
+                             <button type="submit" class="btn col-1"><img src="{% static 'home/images/moon.png' %}" height="22px"></button>
+                         </div>
+                     </div>
+                     <div class="col-lg-3">
+                     </div>
+                 </div>
+            </form>
+     </div>
+ </>
+</body>
+</html>

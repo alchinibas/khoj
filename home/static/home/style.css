@@ -1,0 +1,44 @@
+body{
+    /*background:white url('images/python_wall.jpg') no-repeat ;*/
+}
+@media  screen and (min-width:560px){
+
+    .search_field{
+
+    }
+}
+.logo{
+    margin-top:200px;
+    display:block;
+}
+.logo img{
+    display:block;
+    margin:0 auto;
+}
+.search-field{
+    margin-top:30px;
+    display:flex;
+    align-items:center;
+}
+.sfield-outer{
+    border:1px solid black;
+    overflow:hidden;
+    border-radius-top-right:3px;
+    border-radius-bottom-right:3px;
+}
+.sfield-outer:hover{
+    box-shadow:0px 0px 2px #90a1ff;
+}
+.search-field button{
+    outline:none;
+    border:none;
+    padding:7px;
+    background-color:#444133;
+    border-radius:0px;
+}
+#search-form{
+    display:block;
+}
+#sfield{
+   border:0px;
+}

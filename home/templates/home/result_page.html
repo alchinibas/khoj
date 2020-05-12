@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+{% load static %}
+<html lang="en">
+<head>
+	<meta charset="utf-8">
+	<title>Results</title>
+	<link rel="shortcut icon" href="{% static 'home/images/khoj_icon.ico' %}">
+	<link type="text/css" rel="stylesheet" href="{% static 'home/bootstrap431/css/bootstrap.min.css' %}">
+	<link rel="stylesheet" type="text/css" href="{% static 'home/css/my_css.css' %}">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<script type="text/javascript" src="{% static 'home/jquery/jquery.min.js' %}"></script>
+
+</head>
+<body class="bg bglight1">
+	<div class="modal fade" id="featuremodal" tabindex="-1" role="dialog" aria-hidden="true">
+	  <div class="modal-dialog" role="document">
+	    <div class="modal-content">
+	      <div class="modal-header">
+	        <h5 class="modal-title" id="customimg">Custom Background</h5>
+	        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+	          <span aria-hidden="true">&times;</span>
+	        </button>
+	      </div>
+	      <div class="modal-body">
+	        <form>
+	          <div class="form-group">
+	            <input type="file" class="form-control" id="bgimage">
+	          </div>
+	  
+	        </form>
+	      </div>
+	      <div class="modal-footer">
+	        <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+	        <button type="button" class="btn btn-primary">Set Background</button>
+	      </div>
+	    </div>
+	  </div>
+	</div>
+	<div class="modal fade" id="indexmodal" tabindex="-1" role="dialog" aria-hidden="true">
+	  <div class="modal-dialog" role="document">
+	    <div class="modal-content">
+	      <div class="modal-header">
+	        <h5 class="modal-title">Index my URL</h5>
+	        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+	          <span aria-hidden="true">&times;</span>
+	        </button>
+	      </div>
+	      <div class="modal-body">
+	        <form>
+	          <div class="form-group">
+	            <input type="text" class="form-control" placeholder="URL">
+	          </div>
+	  
+	        </form>
+	      </div>
+	      <div class="modal-footer">
+	        <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+	        <button type="button" class="btn btn-primary">Send</button>
+	      </div>
+	    </div>
+	  </div>
+	</div>
+	<div class="custom-container bg bglight3 mb-5">
+		<div class="container">
+			<div class="logo">
+
+			</div>
+			<form method="GET" action="{% url 'home:result' %}">
+				<div class="row justify-content-between">
+					<div class="col-sm-7 row">
+						<div class="input-group col-12">
+							<input type="text" class="form-control" name="search-text" value="{% if search_text %}{{search_text}}{%endif%}" id= "textInput" name="search-text" placeholder="KHOJ Search" autocomplete="off">
+							<div class="input-group-prepend">
+								<button type="submit" class=" bg-white input-group-text"><img src="{% static 'home/images/khoj_icon.ico' %}" width="20px" ></button>
+							</div>
+						</div>
+						<div class="col-12" id="recommend" style="position:relative;transform:translate(0,100%);">
+							<div class="col-12" id="recommend1" style="position:absolute;z-index:2010;"></div>
+						</div>
+		      		</div>
+		      <div class="col-auto option-group text-right" data-target="dropfn" style="border-bottom:1px solid #555">
+		      	<div class="btn btn-outline-secondary" style="border-bottom:0px;">O1</div>
+		      	<div class="dropdown-menu hide" id="dropfn">
+		      		<ul class="list-unstyled">
+		      			<li class="btn btn-sm btn-light d-block text-left" data-target="#indexmodal" data-toggle="modal">Index my URL</li>
+		      			<li class="btn btn-sm btn-light d-block text-left">Our Shotcuts</li>
+		      			<li class="btn btn-sm btn-light d-block text-left " id="bgmode" data-target="night">Night Mode</li>
+		      			<li class="btn btn-sm btn-light d-block text-left" id="custombg" data-target="#featuremodal" data-toggle="modal" data-whatever="Image Location" aria-labelledby="customimg">Custom Background</li>
+		      			<li class="btn btn-sm btn-light d-block text-left">Reset Customs</li>
+		      			<li class="btn btn-sm btn-light d-block text-left">Donate us</li>
+		      			<li class="btn btn-sm btn-light d-block text-left">About Us</li>
+		      		</ul>
+		      	</div>
+		      </div>
+		    </div>
+			</form>
+		</div>
+	</div>
+	<div class="container mb-5" style="position:relative;">
+		<div class="result-container row mb-4 justify-content-between" style="position:relative;box-sizing: border-box;margin-left:0px;margin-right:0px;">
+			<div class="result-area col-sm-7 bg device-height text-white" data-heightp="80">
+				<div class="special-area">
+
+				</div>
+				<div class="add-area">
+
+				</div>
+				<div class="normal-area" id="load-data1">
+					Result comes Here
+
+
+				</div>
+				<div class="bottom-container">
+
+				</div>
+			</div>
+			<div class="recommend-area bg bglight1 col-sm-4 ">
+					Recommended action here
+			</div>
+		</div>
+		<div class="ad-area bg bglight2 device-height" data-heightp="15">
+
+		</div>
+	</div>
+	<div class="footer bg-dark device-height" data-heightp="25">
+
+	</div>
+	<div class="home-icon">
+		<a href="{% url 'home:index' %}">
+			<img src="{% static 'home/images/khoj_icon.ico' %} " height="40px">
+		</a>
+	</div>
+	<div class="feedback-area">
+		<button type="button" class=" feedback-button btn-sm btn-secondary" data-target="fluid">FeedBack</button>
+		<div class="cover1 feedbackHide" id="fluid">
+			<form  id="feedbackForm" class=" feedbackForm row justify-content-center">
+				<div class="formTitle col-12 row text-center ml-0 mr-0 mb-3 justify-content-between" style="font-size:1.4rem">
+					<div class="col-10">We appreciate you FeedBack</div>
+					<div class="col-auto btn btn-sm border">
+						<button type="button" class="close" data-dismiss="fluid" aria-label="Close">
+			    		<span aria-hidden="true">&times;</span>
+			  		</button>
+					</div>
+				</div>
+				<div class="input-group col-sm-12 row mb-2 align-items-center">
+					<div class="input-group-prepend ff col-3">
+						Name
+					</div>
+					<input type="text" name="cname" id="cname" class="form-control col" placeholder="Name">
+				</div>
+				<div class="input-group col-sm-12 row mb-2 align-items-center">
+					<div class="input-group-prepend ff  col-3">
+						Email
+					</div>
+					<input type="email" name="cname" id="cemail" class="form-control col" placeholder="Email">
+				</div>
+				<div class="input-group col-sm-12 row mb-4 align-items-center">
+					<div class="input-group-prepend ff col-3">
+						Report
+					</div>
+					<textarea class="form-control" cols="4" style="resize:none;word-wrap:normal;" placeholder="Report Description"></textarea>
+				</div>
+				<div class="input-group col-sm-12 row mb-2 align-items-center">
+					<input type="button" class="btn btn-secondary form-control" value="Send">
+				</div>
+			</form>
+		</div>
+	</div>
+</body>
+<script type="text/javascript">
+	{% if search %}
+	var ids={{search}}.toString()
+	var page_no=1;
+	$.ajax({
+	url:"{%  url 'home:load-data1' %}",
+	data:{"page":1, "ids":ids},
+	method:"GET",
+	success:function(result){
+	document.getElementById('load-data1').innerHTML=result;
+
+	}
+	});
+	{% endif %}
+	{% if not search %}
+
+	fm='<div style="color:black;"><div>Something is not right</div>';
+	fm+='<ul><li>Check your spellings</li>';
+	fm+='<li>We provide data only of those whose word exactly matches</li>';
+	fm+='<li>We dontt have spell check and auto-correction algorithms</li></ul></div>';
+	document.getElementById('load-data1').innerHTML=fm;
+	{% endif %}
+	document.getElementById("textInput").addEventListener("keyup",fetchrec,false);
+	var recommend = document.getElementById('recommend1');
+	function fetchrec(){
+		var text=document.getElementById("textInput").value;
+		$.ajax({
+			url:"{%  url 'home:recommend' %}",
+			data:{"text":text},
+			method:"GET",
+			success:function(result){
+				var arr=[];
+				var ast="";
+				arr=result.split(',');
+				for(i=0;i<arr.length;i++){
+					ast+='<div class="recommend-item" style="display:block;">'+arr[i]+'</div>';
+				}
+				recommend.innerHTML=ast;
+			}
+			});
+	}
+</script>
+<script type="text/javascript" src="{% static 'home/jquery/jquery.min.js' %}"></script>
+<script type="text/javascript" src="{% static 'home/bootstrap431/js/bootstrap.min.js' %}"></script>
+<script type="text/javascript" src="{% static 'home/js/my_js.js' %}"></script>
+</html>
