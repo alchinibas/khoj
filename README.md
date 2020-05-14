@@ -24,4 +24,4 @@ This file is uploaded along with all the data. To run this project you most have
  1. Download and Extract the project
  2. Open CMD and expore to the project folder (..../sen/)
  3. type python manage.py runserver (by default 8000)
- 4. Open your browser and visit to localhost:8000/
+ 4. Open your browser and visit to url <a href = "localhost:8000/">this link</a>
