@@ -7,6 +7,12 @@
 	<title>KHOJ | A local one</title>
 	<link rel="shortcut icon" href="{% static 'home/images/khoj_icon.ico' %}">
 	<link type="text/css" rel="stylesheet" href="{% static 'home/bootstrap431/css/bootstrap.min.css'%}">
+	<style type="text/css">
+		.recommend-item:hover{
+			cursor:default;
+			background:rgba(200,200,200,.5);
+		}
+	</style>
 </head>
 <body style="min-height:500px;">
 	<div style="flex-direction:column;position:absolute;word-wrap:unset;background: center;direction:">
@@ -14,7 +20,7 @@
 			<div class="dateTime" style="padding:0px;"></div>
 			<div style="display:flex;flex-direction:column;font-size:20px;">
 				<div class="dateTime" style="position:relative;top:12px;"></div>
-				<div class="dateTime"style="position:relative;top:-2px;"></div>
+				<div class="dateTime" style="position:relative;top:-2px;"></div>
 			</div>
 			<div class="dateTime ml-2"></div>
 		</div>
@@ -27,7 +33,7 @@
 				<div class="col-lg-3 col-sm-1"></div>
 				<div class="input-group col-lg-6 col-sm-10 row" style="transform:scale(1.2);position:relative;">
 	        		<div class="input-group col-12">
-						<input type="text" class="form-control" name="search-text" id= "textInput"placeholder="KHOJ Search" autocomplete="off" aria-autocomplete="none">
+						<input type="text" class="form-control" name="search-text" id= "textInput" placeholder="KHOJ Search" autocomplete="off" aria-autocomplete="none">
 						<div class="input-group-prepend">
 							<button type="submit" class="bg-dark text-white input-group-text"><img src="{% static 'home/images/khoj_icon.ico' %}" width="20px"></button>
 						</div>
@@ -36,16 +42,19 @@
 						<div class="col-12" id="recommend1" style="position:absolute;z-index:1010;"></div>
 					</div>
 				</div>
-				<div class="col-lg-3 col-sm-1"></div>
+				
 			</div>
 		</form>
 		
 	</div>
 </body>
-<script type="text/javascript" src="{% static 'home/js/my_js.js' %}"></script>
 <script src="{% static 'home/jquery/jquery.min.js' %}"></script>
 <script type="text/javascript">
+	var staticrec = 0;
+	var rec1 = document.getElementById("recommend1");
 	var timshow=document.getElementsByClassName("dateTime");
+	var recact=document.getElementById("searchForm");
+	var sinput = document.getElementById("textInput");
 	var ctu=-1;
 	var ctu1=-1;
 	var mdicten=["January", "February","Machr","April","May","June","July","August","September","October","November","December"];
@@ -82,6 +91,31 @@
 				return val.toString();
 			}
 		}
+	$("#recommend").on("click touchend",".recommend-item",function(){
+		var rt = $(this).text();
+		sinput.value = rt;
+
+	});
+	//staticrec = rec1.addEventListener("mouseout",function(){return staticrec = 0;},false);
+	staticrec = sinput.addEventListener("focus",showrecommend,false);
+	staticrec = sinput.addEventListener("blur",function(){return staticrec= 0;},false);
+	if(staticrec==0){
+		staticrec=rec1.addEventListener("mouseover",function(){return staticrec = 1;},false);
+	}
+	function showrecommend(){
+		rec1.style.display="block";
+		return staticrec = 1;
+	}
+	window.onclick = function(){
+		console.log(staticrec);
+		if(staticrec == 0){
+			hiderecommend();
+		}
+	}
+	function hiderecommend(){
+		rec1.style.display="none";
+	}
+
 	window.onresize=arrange;
 	function start(){
 		settime();
@@ -124,6 +158,7 @@
 	document.getElementById("textInput").addEventListener("keyup",fetchrec,false);
 	var recommend = document.getElementById('recommend1');
 	function fetchrec(){
+		var rec = document.getElementsByClassName("recommend-item");
 		var text=document.getElementById("textInput").value;
 		$.ajax({
 			url:"{%  url 'home:recommend' %}",

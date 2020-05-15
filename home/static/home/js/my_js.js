@@ -1,4 +1,27 @@
 // -----------consoleArea-------------------
+var staticrec = 0;
+var blurout = 0;
+var rec1 = document.getElementById("recommend1");
+var sinput = document.getElementById("textInput");
+$("#recommend1").on("click touchend",".recommend-item",function(){
+    var rt = $(this).text();
+    sinput.value = rt;
+
+});
+//staticrec = rec1.addEventListener("mouseout",function(){return staticrec = 0;},false);
+
+staticrec = sinput.addEventListener("focus",showrecommend,false);
+staticrec = sinput.addEventListener("blur",function(){return staticrec= 0;},false);
+if(staticrec==0){
+    staticrec=rec1.addEventListener("mouseover",function(){return staticrec = 1;},false);
+}
+function showrecommend(){
+    rec1.style.display="block";
+    return staticrec = 1;
+}
+function hiderecommend(){
+    rec1.style.display="none";
+}
 //-------------consoleArea-End----------------
 var staticClickVar=0;
 var staticKeyVar;
@@ -6,16 +29,7 @@ if(document.cookie){
 	var cookies=document.cookie.split(";");
 	console.log(cookies.length)
 }
-var recact=document.getElementById("textInput");
-recact.addEventListener("focusout",hiderecommend,false);
-recact.addEventListener("focus",showrecommend,false);
-function showrecommend(){
-    document.getElementById("recommend1").style.display="block";
-}
-function hiderecommend(){
-    document.getElementById("recommend1").style.display="none";
-}
-document.getElementById("bgimage").oninput=setbgcookie;
+document.getElementById("bgimage").addEventListener("input",setbgcookie,false)
 function setbgcookie(){
 	document.cookie="name=background; file=khoj_logo.png; expire=16 Apr 2020 12:00:00 UTC; path=/";
 	document.cookie="file=khoj_logo.png; expires=16 Apr 2020 12:00:00 UTC; path=/";
@@ -25,6 +39,10 @@ window.onclick=function(){
 	if(staticClickVar>2){
 		hideDrop();
 	}
+	 console.log(staticrec);
+    if(staticrec == 0){
+        hiderecommend();
+    }
 }
 window.onkeyup=function(e){
 	staticKeyVar=e.keyCode?e.keyCode:e.which;
@@ -68,7 +86,7 @@ function changebg(){
 		itmResultArea.classList.remove("bglight1");
 		itmHeaderContainer.classList.remove("bglight3");
 		itmRecommendArea.classList.remove("bglight1");
-		
+
 		this.setAttribute("data-target","day")
 		this.innerHTML="Day Mode";
 
@@ -82,7 +100,7 @@ function changebg(){
 		itmResultArea.classList.remove("bglight2");
 		itmRecommendArea.classList.remove("bglight2");
 		body.classList.remove("bgdark2");
-		
+
 		this.setAttribute("data-target","night");
 		this.innerHTML="Night Mode";
 	}
@@ -116,7 +134,7 @@ function toggleMenu(){
 		main.classList.remove("show");
 		main.classList.add("hide");
 		return staticClickVar=0;
-	}	
+	}
 }
 
 window.onload=initializer;

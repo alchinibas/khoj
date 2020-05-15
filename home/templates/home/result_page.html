@@ -65,11 +65,11 @@
 			<div class="logo">
 
 			</div>
-			<form method="GET" action="{% url 'home:result' %}">
+			<form method="GET" action="{% url 'home:result' %}" id = "search-form">
 				<div class="row justify-content-between">
 					<div class="col-sm-7 row">
 						<div class="input-group col-12">
-							<input type="text" class="form-control" name="search-text" value="{% if search_text %}{{search_text}}{%endif%}" id= "textInput" name="search-text" placeholder="KHOJ Search" autocomplete="off">
+							<input type="text" class="form-control" value="{% if search_text %}{{search_text}}{%endif%}" id= "textInput" name="search-text" placeholder="KHOJ Search" autocomplete="off">
 							<div class="input-group-prepend">
 								<button type="submit" class=" bg-white input-group-text"><img src="{% static 'home/images/khoj_icon.ico' %}" width="20px" ></button>
 							</div>
