@@ -54,43 +54,12 @@
 	position:relative;
 }
 
-.feedback-button{
-	position:fixed;
-	bottom:5px;
-	right:5px;
+#fbtn{
+    position:fixed;
+    bottom:4px;
+    right:5px;
 }
-.feedback-area{
-	position:fixed;
-	z-index:1008;
-}
-.cover1{
-	position:fixed;
-	top:0px;
-	left:0px;
-	width:100%;
-	min-height:200px;
-	background:rgba(50,50,50,.5);
-	z-index: 1009;
-}
-#feedbackForm{
-	position:relative;
-	background-color:white;
-	width:90%;
-	max-width:500px;
-	left:50%;
-	border:1px solid #aaa;
-	border-radius:.5vw;
-	box-sizing:border-box;
-}
-.feedbackShow{
-	display:block;
-}
-.feedbackShow #feedbackForm{
-	animation: fadeUp .3s forwards ease-out;
-}
-.feedbackHide{
-	display:none;
-}
+
 @keyframes fadeUp{
 	from{
 		transform:translate(-50%,-40%);

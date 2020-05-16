@@ -3,7 +3,7 @@
 <html lang="en">
 <head>
 	<meta charset="utf-8">
-	<title>Results</title>
+	<title>Results {% if search_text %}{{search_text}}{% endif %}</title>
 	<link rel="shortcut icon" href="{% static 'home/images/khoj_icon.ico' %}">
 	<link type="text/css" rel="stylesheet" href="{% static 'home/bootstrap431/css/bootstrap.min.css' %}">
 	<link rel="stylesheet" type="text/css" href="{% static 'home/css/my_css.css' %}">
@@ -131,43 +131,103 @@
 		</a>
 	</div>
 	<div class="feedback-area">
-		<button type="button" class=" feedback-button btn-sm btn-secondary" data-target="fluid">FeedBack</button>
-		<div class="cover1 feedbackHide" id="fluid">
-			<form  id="feedbackForm" class=" feedbackForm row justify-content-center">
-				<div class="formTitle col-12 row text-center ml-0 mr-0 mb-3 justify-content-between" style="font-size:1.4rem">
-					<div class="col-10">We appreciate you FeedBack</div>
-					<div class="col-auto btn btn-sm border">
-						<button type="button" class="close" data-dismiss="fluid" aria-label="Close">
-			    		<span aria-hidden="true">&times;</span>
-			  		</button>
-					</div>
-				</div>
-				<div class="input-group col-sm-12 row mb-2 align-items-center">
-					<div class="input-group-prepend ff col-3">
-						Name
-					</div>
-					<input type="text" name="cname" id="cname" class="form-control col" placeholder="Name">
-				</div>
-				<div class="input-group col-sm-12 row mb-2 align-items-center">
-					<div class="input-group-prepend ff  col-3">
-						Email
-					</div>
-					<input type="email" name="cname" id="cemail" class="form-control col" placeholder="Email">
-				</div>
-				<div class="input-group col-sm-12 row mb-4 align-items-center">
-					<div class="input-group-prepend ff col-3">
-						Report
-					</div>
-					<textarea class="form-control" cols="4" style="resize:none;word-wrap:normal;" placeholder="Report Description"></textarea>
-				</div>
-				<div class="input-group col-sm-12 row mb-2 align-items-center">
-					<input type="button" class="btn btn-secondary form-control" value="Send">
-				</div>
-			</form>
+		<button type="button" id="fbtn"class="btn btn-primary" data-toggle="modal" data-target="#feedbackForm">FeedBack</button>
+
+		<div class="modal fade" id="feedbackForm" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+		  <div class="modal-dialog" role="document">
+			<div class="modal-content">
+			  <div class="modal-header">
+				<h5 class="modal-title" id="exampleModalLabel">We appreciate your feedback</h5>
+				<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+				  <span aria-hidden="true">&times;</span>
+				</button>
+			  </div>
+			  <div class="modal-body">
+				<form id="fform">
+				  <div class="form-group">
+					<label for="fname" class="col-form-label">Name:</label>
+					<input type="text" class="form-control" id="fname">
+				  </div>
+					<div class="form-group">
+					<label for="femail" class="col-form-label">Email:</label>
+					<input type="text" class="form-control" id="femail">
+				  </div>
+				  <div class="form-group">
+					<label for="fdesc" class="col-form-label">Description:</label>
+					<textarea class="form-control" id="fdesc"></textarea>
+				  </div>
+				</form>
+			  </div>
+			  <div class="modal-footer">
+				<button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+				<button type="button" class="btn btn-primary" id="fsend" data-dismissible="feedbackForm">Send</button>
+			  </div>
+			</div>
+		  </div>
 		</div>
 	</div>
 </body>
 <script type="text/javascript">
+	var fform = document.getElementById("fform");
+	fform.onsubmit = function(e){
+		return false;
+	}
+	var ff=0;
+	var fbtn =document.getElementById("fsend");
+	fbtn.addEventListener("touchend",fsend,false);
+	fbtn.onclick = fsend;
+
+	function fsend(){
+	ff=0;
+	function csrfSafeMethod(method) {
+		// these HTTP methods do not require CSRF protection
+		return (/^(GET|HEAD|OPTIONS|TRACE)$/.test(method));
+	}
+	$.ajaxSetup({
+		beforeSend: function(xhr, settings) {
+			if (!csrfSafeMethod(settings.type) && !this.crossDomain) {
+				xhr.setRequestHeader("X-CSRFToken", csrftoken="{{csrf_token}}");
+			}
+		}
+	});
+	console.log("HERE");
+		var email = document.getElementById("femail");
+		var name= document.getElementById("fname");
+		var desc=document.getElementById("fdesc");
+
+		if(desc.value==''){
+		ff=0;
+		desc.focus();
+		}else{ff+=1;}
+		if(email.value ==''){
+		ff=0;
+		email.focus();
+		}else{ff+=1;}
+		if(name.value == ''){
+		ff=0;
+		name.focus();
+		}else{ff+=1;}
+		console.log(ff);
+		if(ff!=3)return false;
+		var fdis=this.getAttribute("data-dismissible");
+		var tmpn= fbtn.textContent;
+		var loc = "{% static 'home/images/buffer.gif' %}";
+		fbtn.innerHTML='<img class="loading" src="'+loc+'" height="15px">';
+
+		$.ajax({
+		method:"POST",
+		url:"{% url 'home:feedback' %}",
+		data:{"name":name.value,"email":email.value,"desc":desc.value},
+		success:function(output){
+		if(output == 'True'){
+			fbtn.innerHTML=tmpn;
+			fbtn.setAttribute("data-dismiss","modal");
+			fbtn.click();
+			fbtn.setAttribute("data-dismiss","");
+		}
+		}
+		});
+	}
 	{% if search %}
 	var ids={{search}}.toString()
 	var page_no=1;
@@ -208,6 +268,7 @@
 			}
 			});
 	}
+
 </script>
 <script type="text/javascript" src="{% static 'home/jquery/jquery.min.js' %}"></script>
 <script type="text/javascript" src="{% static 'home/bootstrap431/js/bootstrap.min.js' %}"></script>

@@ -1,7 +1,7 @@
 from django.shortcuts import render
 from django.http import HttpResponse
 from .includes import crawler
-from home.models import uncrawled, sites, reference_directory, indexing
+from home.models import uncrawled, sites, indexing
 import os, json
 
 

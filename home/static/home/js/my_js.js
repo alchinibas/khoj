@@ -1,3 +1,9 @@
+//feedback form-----------------
+
+
+//feedback form ends -----------------
+
+
 // -----------consoleArea-------------------
 var staticrec = 0;
 var blurout = 0;
@@ -39,25 +45,11 @@ window.onclick=function(){
 	if(staticClickVar>2){
 		hideDrop();
 	}
-	 console.log(staticrec);
     if(staticrec == 0){
         hiderecommend();
     }
 }
-window.onkeyup=function(e){
-	staticKeyVar=e.keyCode?e.keyCode:e.which;
-	if(staticKeyVar==27){
-		if(staticClickVar1==1){
-			var covers=document.getElementsByClassName("cover1");
-			for(var tmp2=0;tmp2<covers.length;tmp2++){
-				covers[tmp2].classList.remove("feedbackShow");
-				covers[tmp2].classList.add("feedbackHide");
-			}
-			scrolleffects();
-			staticClickVar==0;
-		}
-	}
-}
+
 document.getElementById("bgmode").addEventListener("touchend",changebg,false);
 document.getElementById("bgmode").addEventListener("click",changebg,false);
 
@@ -139,52 +131,10 @@ function toggleMenu(){
 
 window.onload=initializer;
 window.onresize=resize;
-window.onscroll=scrolleffects;
 var staticClickVar=0;
-var closer=document.getElementsByClassName("close");
-for(var c1=0;c1<closer.length;c1++){
-	closer[c1].addEventListener("click",closefn,false);
-	closer[c1].addEventListener("touchend",closefn,false);
-}
-staticClickVar1=document.getElementsByClassName("feedback-button")[0].addEventListener("click",openfn,false);
-staticClickVar1=document.getElementsByClassName("feedback-button")[0].addEventListener("touchend",openfn,false);
 
-function openfn(){
-	var block=this.getAttribute("data-target");
-	var ele=document.getElementById(block);
-	if(ele==undefined)ele=this;
-	ele.classList.remove("feedbackHide");
-	ele.classList.add("feedbackShow");
-	ele.style.zIndex="2008";
-	scrolleffects();
-	return staticClickVar1=1;
-}
-function closefn(){
-	var block=this.getAttribute("data-dismiss");
-	var ele=document.getElementById(block);
-	if(ele==undefined){
-		ele=this;
-
-	}
-	ele.classList.remove("feedbackShow");
-	ele.classList.add("feedbackHide");
-	scrolleffects();
-	return staticClickVar1=2;
-}
-function scrolleffects(){
-	if(document.getElementsByClassName("feedbackShow").length!=0){
-		document.body.style.overflow="hidden";
-	}
-	else{
-		document.body.style.overflow="auto";
-	}
-}
 var resizeStaticVar=-1;
 function resize(){
-	document.getElementById("fluid").style.height=window.screen.height+"px";
-	var fdform=document.getElementById("feedbackForm");
-	fdform.style.top=window.screen.height/2+"px";
-	fdform.style.transform="translate(-50%,-80%)";
 	if(document.body.offsetWidth<=576){
 		if(resizeStaticVar!=1){
 			var rows=document.getElementsByClassName("ff");

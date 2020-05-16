@@ -1,7 +1,6 @@
 from django.shortcuts import render
-from . import views
 import json
-from home.models import sites, indexing,search_text
+from home.models import sites, indexing,search_text,feedback
 from django.http import HttpResponse
 
 
@@ -85,3 +84,26 @@ def add_site(request):
             return HttpResponse("Successful")
         else:
             return HttpResponse("Failed")
+
+
+def feedBack(request):
+    print("Init Fe")
+    if request.method == 'POST':
+        try:
+            name=request.POST['name']
+            email=request.POST['email']
+            desc=request.POST['desc']
+            q5= feedback(name=name, email=email, desc=desc)
+            q5.save()
+            if not q5:
+                print("Failed TO save")
+            # print(name,email,desc)
+
+        except (KeyError,ValueError):
+            return HttpResponse("False")
+        else:
+
+            return HttpResponse("True")
+
+    else:
+        print("Fuck this shit i am out")

@@ -1,6 +1,6 @@
 from django.db import models
 from django.contrib import admin
-
+from django.utils import timezone
 
 class indexingAdmin(admin.ModelAdmin):
     search_fields = ['key']
@@ -46,13 +46,15 @@ class IndexerSecondary(models.Model):
         return self.key1 + ' ' + self.key2
 
 
-class reference_directory(models.Model):
-    directory = models.CharField(max_length=255)
-    category = models.IntegerField(default=10)
-    length = models.IntegerField(default=0)
+class feedback(models.Model):
+    time=timezone.now()
+    name=models.CharField(max_length=50)
+    email=models.EmailField(max_length=50)
+    desc=models.TextField()
+    report_date=models.DateField(default = time)
 
     def __str__(self):
-        return self.directory
+        return self.name + " : "+self.email
 
 
 class search_text(models.Model):
