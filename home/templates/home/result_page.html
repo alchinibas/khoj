@@ -130,7 +130,7 @@
 							var aele= document.createElement("a");
 							aele.setAttribute("href","{% url 'home:result' %}?page=1&search-text={{search_text}}");
 							aele.setAttribute("class","btn btn-small btn-dark");
-							aele.innerHTML=First;
+							aele.innerHTML="First";
 							pager.appendChild(aele);
 						}
 						for(var pi=page_lower_limit;pi<=page_upper_limit;pi++){
@@ -144,7 +144,7 @@
 							var aele= document.createElement("a");
 							aele.setAttribute("href","{% url 'home:result' %}?page={{page_count}}&search-text={{search_text}}");
 							aele.setAttribute("class","btn btn-small btn-dark");
-							aele.innerHTML=Last;
+							aele.innerHTML="Last";
 							pager.appendChild(aele);
 						}
 					{% endif %}
