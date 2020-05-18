@@ -2,7 +2,8 @@ from django.shortcuts import render
 from django.http import HttpResponse
 from .includes import crawler
 from home.models import uncrawled, sites, indexing
-import os, json
+import os
+import json
 
 
 def home(request):
@@ -39,13 +40,12 @@ def index(request):
                         q2.save()
                     else:
                         index_id = q1[0].id
-                        ids = []
                         c = 0
 
                         ids = q1[0].site_id
                         try:
                             id_list = json.loads(ids)
-                        except:
+                        except Exception:
                             raise Exception("failed to parse data")
                         for item in id_list:
                             if item['id'] != items.pk:
@@ -58,27 +58,23 @@ def index(request):
                         else:
                             item['count'] += 1
                         d_id = json.dumps(id_list, ensure_ascii=False)
-                        q2 = indexing.objects.filter(id=index_id).update(site_id=d_id)
+                        indexing.objects.filter(id=index_id).update(site_id=d_id)
                 # If indexing succeeds
                 print("Indexed Complete: Removing File")
                 ref_dir = items.reference_dir[14:]
                 os.remove(f_name)
                 print(ref_dir)
-                q3 = reference_directory.objects.get(directory=ref_dir)
-                q3.length -= 1
-                print(q3.length)
-                q3.save()
-                q4 = sites.objects.filter(url=url).update(indexed=True)
+                sites.objects.filter(url=url).update(indexed=True)
             except FileNotFoundError:
                 print("Failed to open File: " + f_name)
-    except:
+    except Exception as e:
         print("Parsing Error")
     return HttpResponse("Process Complete")
 
 
 def crawl(request):
     crawler.crawler()
-    url_filter(request);
+    url_filter(request)
     return HttpResponse(url_filter(request))
 
 
@@ -99,11 +95,10 @@ def data_handler(request, action):
             if os.path.exists('tmp_files/data.json'):
                 if os.stat("tmp_files/data.json").st_size > 2:
                     with open('tmp_files/data.json', encoding='utf-8') as data:
-                        count=0
                         content = json.load(data)
                         for items in content:
                             dup = sites.objects.filter(url=items['url'])
-                            q=[]
+                            q = []
                             if len(dup) == 0:
                                 print("Duplicate url found 0")
 
@@ -111,10 +106,10 @@ def data_handler(request, action):
                                           display=True)
                                 q.save()
                             if q:
-                               current=q
+                                current=q
                             else:
                                 current=dup[0]
-                            if (current):
+                            if current:
                                 contents = items['description'].lower().split()
 
                                 def index_core(target, priority):
@@ -149,60 +144,67 @@ def data_handler(request, action):
                                                 item['count'] += 1
                                             d_id = json.dumps(id_list, ensure_ascii=False)
                                             q2 = indexing.objects.filter(id=index_id).update(site_id=d_id)
-                                            print(indexing.objects.filter(key=key)[0].site_id)
                                 index_core(contents,0)
                                 contents=items['title'].lower().split()
                                 index_core(contents,1)
                                 current.indexed=True
                                 current.save()
                 os.remove('tmp_files/data.json')
-        elif action == 'arrange_files':
-            if not os.path.exists('khoj_contents'):
-                os.makedirs('khoj_contents')
-                reference_directory(directory='khoj_contents', category=1, length=1).save()
-                os.makedirs('khoj_contents/content1')
-                reference_directory(directory='content1', length=0).save()
-            else:
-                return HttpResponse(dir_handler())
+        elif action == "indexfilter":
+            sids=[]
+            iids=[]
+            print("Determining unwanted indexes")
+            allsites=sites.objects.all()
+            for objects in allsites:
+                sids.append(objects.pk)
+            for objects in indexing.objects.all():
+                keys = objects.site_id
+                keygroup=json.loads(keys, encoding = 'utf-8')
+                for items in keygroup:
+                    if(items['id'] not in sids):
+                        iids.append(items['id'])
+                        try:
+                            keygroup.remove(items)
+                            indexing.objects.filter(key = objects.key).update(site_id = json.dumps(keygroup, ensure_ascii= False))
+                        except Exception as e:
+                            print(e)
+
+                iids = list(set(iids))
+            print("Unwanted ids : ", iids)
     return HttpResponse("Completed")
 
 
-def dir_handler():
-    try:
-        lo = reference_directory.objects.filter(length__lt=1000, category=10)
-        return lo[0].directory
-    except (reference_directory.DoesNotExist, IndexError):
-        lo = len(reference_directory.objects.all())
-        name1 = 'content' + str(lo)
-        name = 'khoj_contents/' + name1
-        os.makedirs(name)
-        q = reference_directory(directory='content' + str(lo))
-        q.save()
-        try:
-            q = reference_directory.objects.get(directory='khoj_contents')
-            q.length += 1
-            q.save()
-        except:
-            print("Fatal Error")
-        return name1
-
-
-def url_filter(request=False):
+def url_filter(request):
+    chk=0
     crawled_data = sites.objects.values_list('url')
     crawled = [url[0] for url in crawled_data]
     print("Removing duplicates from uncrawled")
     for items in crawled:
         try:
-            q3=uncrawled.objects.filter(url=items).delete()
-            print(uncrawled.objects.filter(url=items))
-        except sites.DoesNotExists:
-            pass
+            q3=uncrawled.objects.filter(url=items)
+            sit=q3[0].url
+            q4=q3.delete()
+            chk=1
+            if q4:
+                print(sit)
+            else:
+                print("Failed removing url:",items)
+        except sites.DoesNotExist:
+            print("New URL : ", items)
         except:
-            print("Something is not right")
+            pass
     print("Removing false url")
     x = 'URL duplicates removed'
     try:
         uncrawled.objects.filter(url__startswith="False URL:").delete()
     except:
         x = "No False URL Exists"
-    return x
+    if chk and chk== 1:
+        print("Checking Again:::")
+        url_filter(request)
+    else:
+        print("Finished Checking")
+        if 'afc' in request.GET:
+            return HttpResponse(x)
+        else:
+            return x

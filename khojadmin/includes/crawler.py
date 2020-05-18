@@ -18,7 +18,7 @@ crawled = []
 print("Load crawled urls")
 sites_data = sites.objects.values_list('url')
 for items in sites_data:
-    crawled.append(items[0][0])
+    crawled.append(items[0])
 
 
 def crawl(url, depth):

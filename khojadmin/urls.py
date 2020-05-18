@@ -7,4 +7,5 @@ urlpatterns=[
     path('index/',views.index,name='indexer'),
     path('data_handler/<str:action>/',views.data_handler,name='data_handler'),
     path('',views.home,name="admin_home"),
+    path('urlfilter/',views.url_filter, name='urlfilter'),
 ]
