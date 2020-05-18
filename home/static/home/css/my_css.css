@@ -102,4 +102,8 @@ a:active{
     left:10px;
     z-index:1007;
 }
+#pager a{
+color:rgb(240,240,240);
+
+}
 /*---------------Result page--------------*/

@@ -115,7 +115,41 @@
 				</div>
 			</div>
 			<div class="recommend-area bg bglight1 col-sm-4 ">
-					Recommended action here
+					Total pages if result :{% if page_count %} {{page_count}}{% endif %}
+			</div>
+			<div class="col-sm-7" style="display:flex;margin:0;justify-content:center;align-items:center;text-align:center;">
+				<div class="col" id = "pager">
+					<script>
+					{% if page_count %}
+						var page_count = {{page_count}};
+						var page = {{page}};
+						var pager= document.getElementById('pager');
+						var page_lower_limit = page>2?page-2:1;
+						var page_upper_limit = page<=page_count-2?page+2:page_count;
+						if(page_lower_limit>2){
+							var aele= document.createElement("a");
+							aele.setAttribute("href","{% url 'home:result' %}?page=1&search-text={{search_text}}");
+							aele.setAttribute("class","btn btn-small btn-dark");
+							aele.innerHTML=First;
+							pager.appendChild(aele);
+						}
+						for(var pi=page_lower_limit;pi<=page_upper_limit;pi++){
+							var aele= document.createElement("a");
+							aele.setAttribute("href","{% url 'home:result' %}?page="+pi+"&search-text={{search_text}}");
+							aele.setAttribute("class"," btn btn-small  btn-dark");
+							aele.innerHTML=pi;
+							pager.appendChild(aele);
+						};
+						if(page_upper_limit<page_count-2){
+							var aele= document.createElement("a");
+							aele.setAttribute("href","{% url 'home:result' %}?page={{page_count}}&search-text={{search_text}}");
+							aele.setAttribute("class","btn btn-small btn-dark");
+							aele.innerHTML=Last;
+							pager.appendChild(aele);
+						}
+					{% endif %}
+					</script>
+				</div>
 			</div>
 		</div>
 		<div class="ad-area bg bglight2 device-height" data-heightp="15">
@@ -233,7 +267,7 @@
 	var page_no=1;
 	$.ajax({
 	url:"{%  url 'home:load-data1' %}",
-	data:{"page":1, "ids":ids},
+	data:{"page":{% if not page %}{{1}} {% else %}{{page}}{% endif%}, "ids":ids},
 	method:"GET",
 	success:function(result){
 	document.getElementById('load-data1').innerHTML=result;
@@ -246,7 +280,8 @@
 	fm='<div style="color:black;"><div>Something is not right</div>';
 	fm+='<ul><li>Check your spellings</li>';
 	fm+='<li>We provide data only of those whose word exactly matches</li>';
-	fm+='<li>We dontt have spell check and auto-correction algorithms</li></ul></div>';
+	fm+='<li>We don\'t have spell check and auto-correction algorithms</li>';
+	fm+='<li>Did you input the URL manually? We don\'t recommend this.</li></ul></div>';
 	document.getElementById('load-data1').innerHTML=fm;
 	{% endif %}
 	document.getElementById("textInput").addEventListener("keyup",fetchrec,false);

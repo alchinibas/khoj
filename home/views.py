@@ -1,5 +1,5 @@
 from django.shortcuts import render
-import json
+import json, math
 from home.models import sites, indexing,search_text,feedback
 from django.http import HttpResponse
 
@@ -28,21 +28,20 @@ def loadRec(request):
 def loadData(request):
     result=[]
     if request.method == 'GET':
-        page=request.GET['page']
-        for val in request.GET['ids'].split(','):
-            q1= sites.objects.filter(pk=int(val))
+        ids = [int(value) for value in request.GET['ids'].split(',')]
+        for val in ids:
+            q1= sites.objects.filter(pk=val)
             if(q1):
+                print(val)
                 result.append({'url':q1[0].url,'title':q1[0].title,'desc':q1[0].desc})
         comp=json.dumps(result)
         return render(request,'home/result_viewer.html',context={'result':result})
 
 
-def result(request):
-    if request.method == 'GET':
-        searchtext = request.GET['search-text']
+def result(request,newsearch=True):
+    def resultprep(searchtext):
         checkd=search_text.objects.filter(search_text=searchtext)
         if len(checkd)>0:
-            print(checkd[0])
             checkd[0].visit_couont+=1
             checkd[0].save()
         else:
@@ -56,7 +55,34 @@ def result(request):
                 contents = json.loads(items.site_id,encoding="utf-8")
                 for item in contents:
                     ids.append(item['id'])
-        return render(request, 'home/result_page.html', context={'search': list(set(ids)), 'search_text': searchtext})
+        ids = list(set(ids))
+        key_str=json.dumps(ids,ensure_ascii=False)
+        request.session[searchtext]=key_str
+        print(request.session[searchtext])
+        return ids
+        # fn resultprep ends
+
+    if request.method == 'GET':
+        searchtext = request.GET['search-text']
+        print("text: ",searchtext)
+        if 'page' in request.GET:
+            try:
+                page=int(request.GET['page'])
+                print("page no: ",page)
+            except:
+                return HttpResponse("False Page Number")
+        else:
+            page=1
+        if searchtext not in request.session:
+            if searchtext == '':
+                return render(request,'home/home_page.html')
+            ids=resultprep(searchtext)
+        else:
+            print("SEssion found")
+            ids = json.loads(request.session[searchtext])
+        page_count=int(math.ceil(len(ids)/10))
+        ids = ids[(page-1)*10:page*10]
+        return render(request, 'home/result_page.html', context={'search': ids, 'search_text': searchtext,'page_count':page_count,'page':page})
     else:
         return HttpResponse("Failed to search.")
 
