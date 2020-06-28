@@ -74,8 +74,7 @@ def index(request):
 
 def crawl(request):
     crawler.crawler()
-    url_filter(request)
-    return HttpResponse(url_filter(request))
+    return HttpResponse("Complete")
 
 
 def data_handler(request, action):

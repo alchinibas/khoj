@@ -33,7 +33,7 @@ def loadData(request):
             q1= sites.objects.filter(pk=val)
             if(q1):
                 print(val)
-                result.append({'url':q1[0].url,'title':q1[0].title,'desc':q1[0].desc})
+                result.append({'url':q1[0].url,'title':q1[0].title,'desc':q1[0].desc,'icon':q1[0].icon})
         comp=json.dumps(result)
         return render(request,'home/result_viewer.html',context={'result':result})
 
