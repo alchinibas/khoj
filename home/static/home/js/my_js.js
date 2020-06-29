@@ -31,10 +31,6 @@ function hiderecommend(){
 //-------------consoleArea-End----------------
 var staticClickVar=0;
 var staticKeyVar;
-if(document.cookie){
-	var cookies=document.cookie.split(";");
-	console.log(cookies.length)
-}
 document.getElementById("bgimage").addEventListener("input",setbgcookie,false)
 function setbgcookie(){
 	document.cookie="name=background; file=khoj_logo.png; expire=16 Apr 2020 12:00:00 UTC; path=/";

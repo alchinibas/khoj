@@ -1,0 +1,15 @@
+{% extends 'khojadmin/header.html' %}
+{% block title %}
+Database - KhojAdmin
+{% endblock %}
+{% block body %}
+<div class="container-fluid">
+    <h3 class="text-dark mb-4">Feedback</h3>
+</div>
+
+{% endblock %}
+{% block activefeedback %}
+<li class="nav-item" role="presentation"><a class="nav-link active" href="{% url 'khojadmin:feedback' %}"><i class="fas fa-bullhorn"></i><span>Feedback</span></a></li>
+{% endblock %}
+
+

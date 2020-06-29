@@ -133,7 +133,6 @@ def crawl(url, depth):
 
             try:
                 title = content.find('title').text
-                description = ''
                 for script in content(["script", "style", "footer", "a", "button", "head", "meta"]):
                     script.extract()
                 description = content.get_text()
@@ -224,15 +223,5 @@ def crawler(recursive = True):
     crawl(link, depth=1)
     if(recursive == True):
         crawler()
-    # -----Creates files to save the crawled data
-    # with open("tmp_files/data.json", "w", encoding="utf-8") as json_file:
-    #
-    #     file_content = (json.dumps(data, indent=2, ensure_ascii=False))
-    #     json_file.write(file_content)
-    #
-    # print('length of data:', len(data))
-    #
-    # with open("tmp_files/ses.json", "w", encoding="utf-8") as json_ses:
-    #     list_json = json.dumps(ses, indent=2, ensure_ascii=False)
-    #     json_ses.write(list_json)
+
     return
