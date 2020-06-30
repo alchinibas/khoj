@@ -1,0 +1,15 @@
+{% extends 'khojadmin/header.html' %}
+{% block title %}
+Database - KhojAdmin
+{% endblock %}
+{% block body %}
+<div class="container-fluid">
+    <h3 class="text-dark mb-4">Data Management</h3>
+</div>
+
+{% endblock %}
+{% block activedms %}
+<li class="nav-item" role="presentation"><a class="nav-link active" href="{% url 'khojadmin:dms' %}"><i class="fas fa-laptop-code"></i><span>DMS</span></a></li>
+{% endblock %}
+
+

@@ -1,3 +1,6 @@
 from django.contrib import admin
 
-# Register your models here.
+from khojadmin.models import Feedback, PendingUrl
+
+admin.site.register(Feedback)
+admin.site.register(PendingUrl)

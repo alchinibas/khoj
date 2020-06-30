@@ -1,0 +1,17 @@
+{% extends 'khojadmin/header.html' %}
+{% block title %}
+Database - KhojAdmin
+{% endblock %}
+{% block actionmain %}
+<div class="d-sm-flex justify-content-between align-items-center mb-4">
+    <h3 class="text-dark mb-0">Report</h3><a class="btn btn-primary btn-sm d-none d-sm-inline-block" role="button" href="#"><i class="fas fa-download fa-sm text-white-50"></i>&nbsp;Generate Report</a></div>
+<div class="row">
+{% endblock %}
+{% block body %}
+
+{% endblock %}
+{% block activereport %}
+<li class="nav-item" role="presentation"><a class="nav-link active" href="{% url 'khojadmin:report' %}"><i class="fas fa-list-alt"></i><span>Report</span></a></li>
+{% endblock %}
+
+

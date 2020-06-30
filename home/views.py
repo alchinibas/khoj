@@ -15,7 +15,6 @@ def loadRec(request):
             text=request.GET['text']
             if text=='':
                 return HttpResponse(data)
-            print(text)
         except :
             return HttpResponse()
         dat=search_text.objects.filter(search_text__contains = text).order_by('priority')
@@ -32,8 +31,7 @@ def loadData(request):
         for val in ids:
             q1= sites.objects.filter(pk=val)
             if(q1):
-                print(val)
-                result.append({'url':q1[0].url,'title':q1[0].title,'desc':q1[0].desc})
+                result.append({'url':q1[0].url,'title':q1[0].title,'desc':q1[0].desc,'icon':q1[0].icon})
         comp=json.dumps(result)
         return render(request,'home/result_viewer.html',context={'result':result})
 
@@ -64,11 +62,9 @@ def result(request,newsearch=True):
 
     if request.method == 'GET':
         searchtext = request.GET['search-text']
-        print("text: ",searchtext)
         if 'page' in request.GET:
             try:
                 page=int(request.GET['page'])
-                print("page no: ",page)
             except:
                 return HttpResponse("False Page Number")
         else:
@@ -78,7 +74,6 @@ def result(request,newsearch=True):
                 return render(request,'home/home_page.html')
             ids=resultprep(searchtext)
         else:
-            print("SEssion found")
             ids = json.loads(request.session[searchtext])
         page_count=int(math.ceil(len(ids)/10))
         ids = ids[(page-1)*10:page*10]
@@ -133,3 +128,9 @@ def feedBack(request):
 
     else:
         print("Fuck this shit i am out")
+
+
+def adminAction(request):
+    print("got it")
+
+    return HttpResponse("1")

@@ -31,7 +31,10 @@ def extract(url):
         return url[:url.index('/') + 1]
 
     elif not re.match(r'[\w\W]+/', url) and re.match(r'[\w\W]+?', url):
-        return url[:url.index('?')] + '/'
+        if '?' in url:
+            return url[:url.index('?')] + '/'
+        else:
+            return url+'/'
 
 
 def url_recheck(url):

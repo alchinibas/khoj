@@ -2,13 +2,60 @@ from django.shortcuts import render
 from django.http import HttpResponse
 from .includes import crawler
 from home.models import uncrawled, sites, indexing
+from khojadmin.models import Feedback, PendingUrl
 import os
 import json
 
 
+def adminAction(request):
+    print("Through pending url")
+    if request.method =='GET':
+        id=request.GET['action']
+
+        return render(request, 'khojadmin/pendingurl.html')
+    elif request.method=='POST':
+        print("entered")
+        if request.POST['action'] == 'indexingurl':
+            url=request.POST['url']
+            if url:
+                if len(sites.objects.filter(url=url)):
+                    return HttpResponse("Engine already recognizes your URL")
+                elif len(uncrawled.objects.filter(url=url))>0:
+                    return HttpResponse("Already Aproved. Waiting for Indexing")
+                elif len(PendingUrl.objects.filter(url=url))>0:
+                    return HttpResponse("Already waiting for Aproval")
+                else:
+                    PendingUrl(url = url).save()
+                    return HttpResponse("Sent for Aproval")
+
+                return HttpResponse("Internal Error")
+            else:
+                return HttpResponse("Failure")
+        return HttpResponse("1")
+
 def home(request):
     return render(request, 'khojadmin/index.html')
 
+
+def urlRequests(request):
+    context={"data":[item for item in PendingUrl.objects.all()]}
+    return render(request, 'khojadmin/pendingurl.html', context=context)
+
+
+def dbms(request):
+    return render(request, 'khojadmin/database.html')
+
+def feedback(request):
+    return render(request, 'khojadmin/feedback.html')
+
+def dataManagement(request):
+    return render(request,'khojadmin/dms.html')
+
+def report(request):
+    return render(request,'khojadmin/report.html')
+
+def settings(request):
+    return render(request, 'khojadmin/settings.html')
 
 def index(request):
     if os.path.exists('khoj_contents/content1'):
@@ -74,8 +121,7 @@ def index(request):
 
 def crawl(request):
     crawler.crawler()
-    url_filter(request)
-    return HttpResponse(url_filter(request))
+    return HttpResponse("Complete")
 
 
 def data_handler(request, action):

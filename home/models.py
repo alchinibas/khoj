@@ -1,6 +1,6 @@
 from django.db import models
 from django.contrib import admin
-from django.utils import timezone
+import django
 
 class indexingAdmin(admin.ModelAdmin):
     search_fields = ['key']
@@ -15,8 +15,8 @@ class sites(models.Model):
     visit_count = models.IntegerField(default=0)
     priority = models.FloatField(default=1.0000)
     indexed = models.BooleanField(default=False)
-    reference_dir = models.TextField(max_length=255, default='khoj_contents/content1')
-    file_name = models.TextField(max_length=255, default='')
+    words_links = models.CharField(max_length= 255, default = '-')
+    icon = models.CharField(max_length=255, default = "/favicon.ico")
 
     def __str__(self):
         return self.title
@@ -47,11 +47,10 @@ class IndexerSecondary(models.Model):
 
 
 class feedback(models.Model):
-    time=timezone.now()
     name=models.CharField(max_length=50)
     email=models.EmailField(max_length=50)
     desc=models.TextField()
-    report_date=models.DateField(default = time)
+    report_date=models.DateField(default = django.utils.timezone.now)
 
     def __str__(self):
         return self.name + " : "+self.email
