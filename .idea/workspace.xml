@@ -2,17 +2,27 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="ff136dd2-5e0a-4bf4-9269-987ef53faf21" name="Default Changelist" comment="">
+      <change afterPath="$PROJECT_DIR$/khojadmin/templates/khojadmin/dms.html" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/khojadmin/templates/khojadmin/feedback.html" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/khojadmin/templates/khojadmin/header.html" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/khojadmin/templates/khojadmin/pendingurl.html" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/khojadmin/templates/khojadmin/settings.html" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/db.sqlite3" beforeDir="false" afterPath="$PROJECT_DIR$/db.sqlite3" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/home/admin.py" beforeDir="false" afterPath="$PROJECT_DIR$/home/admin.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/home/models.py" beforeDir="false" afterPath="$PROJECT_DIR$/home/models.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/home/static/home/css/my_css.css" beforeDir="false" afterPath="$PROJECT_DIR$/home/static/home/css/my_css.css" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/home/static/home/js/my_js.js" beforeDir="false" afterPath="$PROJECT_DIR$/home/static/home/js/my_js.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/home/templates/home/home_page.html" beforeDir="false" afterPath="$PROJECT_DIR$/home/templates/home/home_page.html" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/home/templates/home/result_page.html" beforeDir="false" afterPath="$PROJECT_DIR$/home/templates/home/result_page.html" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/home/urls.py" beforeDir="false" afterPath="$PROJECT_DIR$/home/urls.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/home/views.py" beforeDir="false" afterPath="$PROJECT_DIR$/home/views.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/khojadmin/admin.py" beforeDir="false" afterPath="$PROJECT_DIR$/khojadmin/admin.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/khojadmin/includes/crawler.py" beforeDir="false" afterPath="$PROJECT_DIR$/khojadmin/includes/crawler.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/khojadmin/models.py" beforeDir="false" afterPath="$PROJECT_DIR$/khojadmin/models.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/khojadmin/templates/khojadmin/index.html" beforeDir="false" afterPath="$PROJECT_DIR$/khojadmin/templates/khojadmin/index.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/khojadmin/urls.py" beforeDir="false" afterPath="$PROJECT_DIR$/khojadmin/urls.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/khojadmin/views.py" beforeDir="false" afterPath="$PROJECT_DIR$/khojadmin/views.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/sen/settings.py" beforeDir="false" afterPath="$PROJECT_DIR$/sen/settings.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/sen/urls.py" beforeDir="false" afterPath="$PROJECT_DIR$/sen/urls.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/tmp_files/data.json" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/tmp_files/ses.json" beforeDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
@@ -34,11 +44,14 @@
   <component name="ProjectId" id="1Xq8qJosN7rJIQgYFPex5wR5mT9" />
   <component name="ProjectLevelVcsManager" settingsEditedManually="true" />
   <component name="PropertiesComponent">
+    <property name="ASKED_ADD_EXTERNAL_FILES" value="true" />
     <property name="DefaultHtmlFileTemplate" value="HTML File" />
     <property name="last_opened_file_path" value="$PROJECT_DIR$" />
+    <property name="settings.editor.selected.configurable" value="preferences.externalTools" />
   </component>
   <component name="RecentsManager">
     <key name="MoveFile.RECENT_KEYS">
+      <recent name="C:\Users\Abiraj\Desktop\sen\home\static\home" />
       <recent name="C:\Users\Abiraj\Desktop\sen\home\templates\home" />
     </key>
   </component>
@@ -69,16 +82,5 @@
         </entry>
       </map>
     </option>
-  </component>
-  <component name="XDebuggerManager">
-    <breakpoint-manager>
-      <breakpoints>
-        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
-          <url>file://$PROJECT_DIR$/khojadmin/views.py</url>
-          <line>151</line>
-          <option name="timeStamp" value="1" />
-        </line-breakpoint>
-      </breakpoints>
-    </breakpoint-manager>
   </component>
 </project>

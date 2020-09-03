@@ -121,8 +121,12 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/3.0/howto/static-files/
 
 STATIC_URL = '/static/'
+<<<<<<< HEAD
 
 CRISPY_TEMPLATE_PACK = 'bootstrap4'
 
 LOGIN_REDIRECT_URL = 'khojadmin:admin_home'
 LOGIN_URL = 'admin:login'
+=======
+STATICFILES_DIRS = [os.path.join(BASE_DIR, 'static'),]
+>>>>>>> 49ad8582f2962bc28d277577bffd23a653b1e135

@@ -1,0 +1,38 @@
+{% extends 'khojadmin/header.html' %}
+{% block title %}
+Database - KhojAdmin
+{% endblock %}
+{% block actionmain %}
+<div class="d-sm-flex justify-content-between align-items-center mb-4">
+    <h3 class="text-dark mb-0">Aprove URLs </h3><a class="btn btn-primary btn-sm d-none d-sm-inline-block" role="button" href="/admin/" target="_blank"><i class="fas fa-check fa-sm text-white-50"></i>&nbsp;Aprove all</a></div>
+<div class="row">
+{% endblock %}
+{% block body %}
+<table class="table table-hover">
+  <thead>
+    <tr>
+      <th scope="col">0</th>
+      <th scope="col">URL</th>
+        <th scope="col">Date</th>
+      <th scope="col">Aprove</th>
+    </tr>
+  </thead>
+    {% if data %}
+    {% for items in data %}
+  <tbody>
+    <tr>
+      <th scope="row">{{forloop.counter}}</th>
+        <td><a href="{{items.url}}">{{items.url}}</a></td>
+      <td>{{items.requestDate}}</td>
+      <td><a class="btn" href="{% url 'khojadmin:adminaction' %}?id={{items.pk}}">Aprove</a></td>
+    </tr>
+  </tbody>
+    {% endfor %}
+    {% endif %}
+</table>
+{% endblock %}
+{% block activeurl %}
+<li class="nav-item" role="presentation"><a class="nav-link active " href="{% url 'khojadmin:urlrequests' %}"><i class="fas fa-inbox"></i><span>Pending Requests</span></a></li>
+{% endblock %}
+
+

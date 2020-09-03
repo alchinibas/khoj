@@ -1,0 +1,14 @@
+<!DOCTYPE html>
+{% load static %}
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Khoj |Admin Homepage</title>
+    <link rel="shortcut icon" href="{% static 'home/images/khoj_icon.ico' %}">
+</head>
+<a href="{% url 'khojadmin:crawler' %}">Crawl</a>&nbsp;<br/>
+<a href="{% url 'khojadmin:data_handler' action='save'%}">Save and Index</a><br/>
+<a href = "{% url 'khojadmin:data_handler' action='indexfilter' %}" title="remove unwanted index">Filter Index</a><br/>
+<a href="{% url 'khojadmin:urlfilter' %}?afc=False">Check URL</a><br/>
+</body>
+</html>

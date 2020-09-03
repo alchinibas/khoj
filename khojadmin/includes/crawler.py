@@ -1,13 +1,12 @@
-import json
+import json, os
 import requests
 from bs4 import BeautifulSoup
-from urllib import robotparser
+# from urllib import robotparser
 import re
 from .urlbreak import get_domain, url_rebuild
-from home.models import sites, uncrawled
+from home.models import sites, uncrawled, indexing
 
 text_tags = ['p', 'h', 'div']
-data = []
 urls = []
 growth = []
 ses = []
@@ -15,14 +14,69 @@ tmp1 = []
 tmp2 = []
 domain = []
 crawled = []
-print("Load crawled urls")
-sites_data = sites.objects.values_list('url')
-for items in sites_data:
-    crawled.append(items[0])
+
+# ------Saves uncrawled urls---------
+def Uncrawled(items):
+    links = items['links']
+    for url in links:
+        check = uncrawled.objects.filter(url=url)
+        if len(check) == 0 and 'False URL' not in url:
+            q = uncrawled(url=url)
+            q.save()
+
+
+# --------Saves site data---------------
+def Sites(items):
+    current = sites(url=items['url'], title=items['title'], desc=items['description'][:255],
+                    display=True, words_links=items['words_links'],icon = items['icon'])
+    current.save()
+    uncrawled.objects.filter(url = items['url']).delete()
+
+    if current:
+        contents = items['description'].lower().split()
+
+        def index_core(target,id, priority):
+            for key in target:
+                q1 = indexing.objects.filter(key=key)
+                new_id = [{'id': id, 'p': priority, 'count': 0}]
+                if len(q1) == 0:
+                    reference_id = json.dumps(new_id, ensure_ascii=False)
+                    q2 = indexing(key=key, site_id=reference_id)
+                    if not q2:
+                        print("failed")
+                    q2.save()
+                else:
+                    index_id = q1[0].id
+                    ids = []
+                    c = 0
+
+                    ids = q1[0].site_id
+                    try:
+                        id_list = json.loads(ids)
+                    except:
+                        raise Exception("failed to parse data")
+                    for item in id_list:
+                        if item['id'] != id:
+                            c = 0
+                        else:
+                            c = 1
+                            break
+                    if c == 0:
+                        id_list.append({'id': id, "p": priority, 'count': 0})
+                    else:
+                        item['count'] += 1
+                    d_id = json.dumps(id_list, ensure_ascii=False)
+                    q2 = indexing.objects.filter(id=index_id).update(site_id=d_id)
+
+        index_core(contents,current.pk, 0)
+        contents = items['title'].lower().split()
+        index_core(contents,current.pk, 1)
+        current.indexed = True
+        current.save()
 
 
 def crawl(url, depth):
-    original=url
+    original = url
     # Determining DNS
     if len(domain) == 0:
         url = get_domain(url)
@@ -37,15 +91,25 @@ def crawl(url, depth):
     if base_url not in domain:
         domain.append(base_url)
     try:
-        rp = robotparser.RobotFileParser()
-        rp.set_url(base_url + 'robots.txt')
-        rp.read()
-        check1 = rp.can_fetch("msnbot", url)
-        check2 = rp.can_fetch("*", url)
+        # print("Base url:",base_url)
+        # rp = robotparser.RobotFileParser()
+        # rp.set_url(base_url + 'robots.txt')
+        # rp.read()
+        # check1 = rp.can_fetch("msnbot", url)
+        # check2 = rp.can_fetch("*", url)
+        data=requests.get(base_url+"/robots.txt",headers={"Content-Type":"text/plain"})
+
+        data_sets = data.content.decode("utf-8").split("\r\n")
+        check=True
+        for items in data_sets:
+            if items.startswith("Disallow"):
+                block_path = items.split(":")[1].strip()
+                if block_path in url:
+                    check=False
     except:
-        check1 = True
-        check2 = True
-    if check2 or check1:
+        check = True
+    if check:
+        print("Crawl allowed:")
         try:
             print('Crawling url: "%s" at depth: %d' % (url, depth))
             response = requests.get(url)
@@ -59,39 +123,73 @@ def crawl(url, depth):
         try:
             links = content.find_all('a', href=True)
             try:
+                icon = content.find('link',attrs={'rel':'shortcut icon'})
+                print(icon,"here at icon")
+                icon = icon['href']
+                if icon.startswith("/"):
+                    icon = base_url+icon
+            except Exception as e:
+                print("False Icon",e)
+
+            try:
                 title = content.find('title').text
-                description = ''
-                for script in content(["script", "style", "footer","a", "button", "head", "meta"]):
+                for script in content(["script", "style", "footer", "a", "button", "head", "meta"]):
                     script.extract()
                 description = content.get_text()
                 description = ' '.join(description.split())
                 print("Description of %d words", len(description))
-            except:
+            except Exception as e:
+                print("{'Error':"+e+", 'URL':"+url+"}")
+                uncrawled.objects.filter(url=url).delete()
                 return
 
-            result = {
-                'url': url,
-                'title': title,
-                'description': description
-            }
             # print('\n\nReturn:\n\n',json.dumps(result, indent=2))
 
             # urls=list(set([url['href'] for url in links]))
-            tmp = []
             tmp = [url['href'] for url in links]
             urls = [url_rebuild(url, base_url) for url in set(tmp) if url not in crawled]
 
-            if result not in data:
-                data.append(result)
+            # -----------Updating/saving data
+
+            try:
+                db_check1 = sites.objects.filter(url=url)
+                db_check1 = sites.objects.filter(url=url)
+                desc_len = db_check1[0].words_links.split(':')[0]
+                desc_links = db_check1[1].words_links.split(":")[1]
+            except Exception as e:
+                print("Data lacks:",e)
+                desc_len='0'
+                desc_links = '0'
+            current_desc_len = len(description.split())
+            current_links = len(tmp)
+            current_words_links = str(len(description.split())) + str(len(tmp))
+            result = {
+                'url': url,
+                'title': title,
+                'description': description,
+                'words_links': current_words_links,
+                'icon':icon,
+            }
+            if db_check1 and db_check1[0]:
+                if desc_len == str(current_desc_len) and desc_links == str(current_links) and db_check1[
+                    0].desc in description:
+                    pass
+                else:
+                    db_check1[0].desc = description[:255]
+                    db_check1[0].words_links = current_words_links
+            else:
+                Sites(result)
+
+            if url not in crawled:
                 if depth == 0:
                     tmp2 = [link for link in urls if link not in set(tmp1)]
                     for link in urls:
                         tmp1.append(link)
                     ses_dict = {
                         'from': url,
-                        'links': tmp2
+                        'links': tmp2,
                     }
-                    ses.append(ses_dict)
+                    Uncrawled(ses_dict)
                     return "Returned 1"
                 print(str(len(urls)) + " anchor tags found")
                 c = 0
@@ -105,15 +203,16 @@ def crawl(url, depth):
                         pass
 
                 return
-        except:
-            print("No links avaliable")
-            q5=uncrawled.objects.filter(url=original).delete()
+        except Exception as e:
+            print("No links avaliable. Error :",e)
+            uncrawled.objects.filter(url=original).delete()
             return
     else:
+        uncrawled.objects.filter(url= url).delete()
         return
 
 
-def crawler():
+def crawler(recursive = True):
     try:
         urls = uncrawled.objects.all()[:1]
         link = urls[0].url
@@ -121,15 +220,8 @@ def crawler():
     except Exception:
         print("Failed : Either no links to crawl or error in database connection")
         return
-    crawl(link, depth=2)
-    with open("tmp_files/data.json", "w", encoding="utf-8") as json_file:
+    crawl(link, depth=1)
+    if(recursive == True):
+        crawler()
 
-        file_content = (json.dumps(data, indent=2, ensure_ascii=False))
-        json_file.write(file_content)
-
-    print('length of data:', len(data))
-
-    with open("tmp_files/ses.json", "w", encoding="utf-8") as json_ses:
-        list_json = json.dumps(ses, indent=2, ensure_ascii=False)
-        json_ses.write(list_json)
     return

@@ -9,4 +9,5 @@ urlpatterns = [
     path('result/load',views.loadData,name='load-data1'),
     path('olifros34594tu4g4g',views.loadRec,name='recommend'),
     path('asldifwef093je09ejrf',views.feedBack,name='feedback'),
+    path('sdfjijf/',views.adminAction,name = 'adminaction'),
 ]
