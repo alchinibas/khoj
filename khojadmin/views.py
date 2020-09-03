@@ -4,8 +4,10 @@ from .includes import crawler
 from home.models import uncrawled, sites, indexing
 import os
 import json
+from django.contrib.auth.decorators import login_required
 
 
+@login_required
 def home(request):
     return render(request, 'khojadmin/index.html')
 
