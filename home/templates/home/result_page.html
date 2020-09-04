@@ -105,9 +105,12 @@
 				<div class="add-area">
 
 				</div>
-				<div class="normal-area" id="load-data1">
-					Result comes Here
-
+				<div class="normal-area text-dark" id="load-data1">
+					{% if search %}
+						Result on the way
+					{% else %}
+					<h1>You are expecting too much than we are capable of.</h1>
+					{%endif %}
 
 				</div>
 				<div class="bottom-container">
@@ -115,40 +118,31 @@
 				</div>
 			</div>
 			<div class="recommend-area bg bglight1 col-sm-4 ">
-					Total pages if result :{% if page_count %} {{page_count}}{% endif %}
+					Total pages if result :
 			</div>
-			<div class="col-sm-7" style="display:flex;margin:0;justify-content:center;align-items:center;text-align:center;">
+			<div class="col-sm-7" style="display:flex; margin:0;justify-content:center; align-items:center; text-align:center;">
 				<div class="col" id = "pager">
-					<script>
-					{% if page_count %}
-						var page_count = {{page_count}};
-						var page = {{page}};
-						var pager= document.getElementById('pager');
-						var page_lower_limit = page>2?page-2:1;
-						var page_upper_limit = page<=page_count-2?page+2:page_count;
-						if(page_lower_limit>2){
-							var aele= document.createElement("a");
-							aele.setAttribute("href","{% url 'home:result' %}?page=1&search-text={{search_text}}");
-							aele.setAttribute("class","btn btn-small btn-dark");
-							aele.innerHTML="First";
-							pager.appendChild(aele);
-						}
-						for(var pi=page_lower_limit;pi<=page_upper_limit;pi++){
-							var aele= document.createElement("a");
-							aele.setAttribute("href","{% url 'home:result' %}?page="+pi+"&search-text={{search_text}}");
-							aele.setAttribute("class"," btn btn-small  btn-dark");
-							aele.innerHTML=pi;
-							pager.appendChild(aele);
-						};
-						if(page_upper_limit<page_count-2){
-							var aele= document.createElement("a");
-							aele.setAttribute("href","{% url 'home:result' %}?page={{page_count}}&search-text={{search_text}}");
-							aele.setAttribute("class","btn btn-small btn-dark");
-							aele.innerHTML="Last";
-							pager.appendChild(aele);
-						}
-					{% endif %}
-					</script>
+					<div class="paging mt-4 mb-4 text-center w-100">
+						{% if is_paginated %}
+							{% if page_obj.has_previous %}
+								<a class="btn btn-sm btn-outline-info" href="?search-text={{searchtext}}&page=1">First</a>
+								<a class="btn btn-sm btn-outline-info" href="?search-text={{searchtext}}&page={{page_obj.previous_page_number}}">Previous</a>
+							{% endif %}
+							{% for num in page_obj.paginator.page_range %}
+								{% if num == page_obj.number %}
+									<a class="btn  btn-info disabled" href="?search-text={{searchtext}}&page={{num}}">{{num}}</a>
+								{% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+									<a class="btn btn-sm btn-outline-info" href="?search-text={{searchtext}}&page={{num}}">{{num}}</a>
+								{%endif %}
+							{% endfor %}
+							{% if page_obj.has_next %}
+								<a class="btn btn-sm btn-outline-info" href="?search-text={{searchtext}}&page={{page_obj.next_page_number}}">Next</a>
+								<a class="btn btn-sm btn-outline-info" href="?search-text={{searchtext}}&page={{page_obj.paginator.num_pages}}">Last</a>
+							{% endif %}
+						{% endif %}
+					</div>
+
+
 				</div>
 			</div>
 		</div>
@@ -265,24 +259,15 @@
 	var ids={{search}}.toString()
 	var page_no=1;
 	$.ajax({
-	url:"{%  url 'home:load-data1' %}",
-	data:{"page":{% if not page %}{{1}} {% else %}{{page}}{% endif%}, "ids":ids},
-	method:"GET",
-	success:function(result){
-	document.getElementById('load-data1').innerHTML=result;
-
-	}
+		url:"{%  url 'home:load-data1' %}",
+		data:{"page":{% if not page %}{{1}} {% else %}{{page}}{% endif%}, "ids":ids},
+		method:"GET",
+		success:function(result){
+			document.getElementById('load-data1').innerHTML=result;
+		}
 	});
 	{% endif %}
-	{% if not search %}
 
-	fm='<div style="color:black;"><div>Something is not right</div>';
-	fm+='<ul><li>Check your spellings</li>';
-	fm+='<li>We provide data only of those whose word exactly matches</li>';
-	fm+='<li>We don\'t have spell check and auto-correction algorithms</li>';
-	fm+='<li>Did you input the URL manually? We don\'t recommend this.</li></ul></div>';
-	document.getElementById('load-data1').innerHTML=fm;
-	{% endif %}
 	document.getElementById("textInput").addEventListener("keyup",fetchrec,false);
 	var recommend = document.getElementById('recommend1');
 	function fetchrec(){

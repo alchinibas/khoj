@@ -13,7 +13,7 @@ urlpatterns=[
     path('report/',views.report,name='report'),
     path('dataManagement/',views.dataManagement,name='dms'),
     path('feedback/',views.feedback,name='feedback'),
-    path('urlrRquests/',views.urlRequests,name = 'urlrequests'),
+    path('urlrRquests/',views.UrlRequests.as_view(),name = 'urlrequests'),
     path('settings/',views.settings,name = 'settings'),
     path('094rjf09fj0wjf04yfsdhH()FE/',views.adminAction,name='adminaction'),
 ]

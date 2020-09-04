@@ -2,8 +2,6 @@ from django.db import models
 from django.contrib import admin
 import django
 
-class indexingAdmin(admin.ModelAdmin):
-    search_fields = ['key']
 
 
 class sites(models.Model):

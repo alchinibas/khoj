@@ -6,11 +6,11 @@ from khojadmin.models import Feedback, PendingUrl
 import os
 import json
 from django.contrib.auth.decorators import login_required
+from django.utils.decorators import method_decorator
+from django.views.generic import (ListView,)
 
 
-<<<<<<< HEAD
 @login_required
-=======
 def adminAction(request):
     print("Through pending url")
     if request.method =='GET':
@@ -37,14 +37,24 @@ def adminAction(request):
                 return HttpResponse("Failure")
         return HttpResponse("1")
 
->>>>>>> 49ad8582f2962bc28d277577bffd23a653b1e135
 def home(request):
     return render(request, 'khojadmin/index.html')
 
 
-def urlRequests(request):
-    context={"data":[item for item in PendingUrl.objects.all()]}
-    return render(request, 'khojadmin/pendingurl.html', context=context)
+class UrlRequests(ListView):
+    model = PendingUrl
+    context_object_name = 'data'
+    ordering ='-requestDate'
+    paginate_by = 20
+    template_name='khojadmin/pendingurl.html'
+
+    @method_decorator(login_required)
+    def dispatch(self, request, *args, **kwargs):
+        if request.method.lower() in self.http_method_names:
+            handler = getattr(self, request.method.lower(), self.http_method_not_allowed)
+        else:
+            handler = self.http_method_not_allowed
+        return handler(request, *args, **kwargs)
 
 
 def dbms(request):
@@ -123,7 +133,7 @@ def index(request):
         print("Parsing Error")
     return HttpResponse("Process Complete")
 
-
+@login_required
 def crawl(request):
     crawler.crawler()
     return HttpResponse("Complete")
