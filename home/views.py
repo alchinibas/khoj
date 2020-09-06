@@ -132,7 +132,6 @@ def add_site(request):
 
 
 def feedBack(request):
-    print("Init Fe")
     if request.method == 'POST':
         try:
             name=request.POST['name']

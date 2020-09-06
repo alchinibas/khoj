@@ -1,24 +1,71 @@
-from django.shortcuts import render
+from django.shortcuts import render, get_object_or_404, redirect
 from django.http import HttpResponse
 from .includes import crawler
-from home.models import uncrawled, sites, indexing
+from home.models import uncrawled, sites, indexing, feedback
 from khojadmin.models import Feedback, PendingUrl
 import os
 import json
 from django.contrib.auth.decorators import login_required
 from django.utils.decorators import method_decorator
-from django.views.generic import (ListView,)
-
+from django.views.generic import (
+    ListView,
+    DetailView,
+)
+from django.core.exceptions import PermissionDenied
+from django.contrib import messages
 
 @login_required
 def adminAction(request):
-    print("Through pending url")
     if request.method =='GET':
-        id=request.GET['action']
+        if 'delete' in request.GET:
+            pk = request.GET['delete'];
+            obj = get_object_or_404(feedback, pk=pk)
+            obj.delete()
+            messages.success(request,"Deleted Successfully!!!")
+            return redirect('khojadmin:feedback')
+        elif 'check' in request.GET:
+            pk = request.GET['check']
+            obj=get_object_or_404(feedback,pk=pk)
+            obj.read = True
+            obj.save()
+            messages.success(request,"Marked Read Successfully!!!")
+            return redirect('khojadmin:feedback')
+        elif 'readSelected' in request.GET:
+            data = request.GET['deleteSelected']
+            if data:
+                ids =json.loads(data)
+                for pk in ids:
+                    try:
+                        obj = feedback.objects.get(pk = pk)
+                        obj.read =  True
+                        obj.save()
+                    except (feedback.DoesNotExist,KeyError):
+                        message.warning(f'Someting went wrong with data {pk}')
 
+                messages.success(request,"Selected messages deleted Successfully!!!")
+            else:
+                messages.warning(request,"No data selected")
+
+
+            return redirect('khojadmin:feedback')
+        elif 'deleteSelected' in request.GET:
+            data = request.GET['readSelected']
+            if data:
+                ids=json.loads(data)
+                for pk in ids:
+                    try:
+                        obj = feedback.objects.get(pk = pk).delete()
+                    except (feedback.DoesNotExist,KeyError):
+                        message.warning(f'Someting went wrong with data {pk}')
+                messages.success(request,"Selected messages marked read Successfully!!!")
+            else:
+                messages.warning(request,"No data selected")
+
+            return redirect('khojadmin:feedback')
+        else:
+            raise PermissionDenied("403 Forbidden action access")
         return render(request, 'khojadmin/pendingurl.html')
     elif request.method=='POST':
-        print("entered")
         if request.POST['action'] == 'indexingurl':
             url=request.POST['url']
             if url:
@@ -40,12 +87,20 @@ def adminAction(request):
 def home(request):
     return render(request, 'khojadmin/index.html')
 
+class LoginRequired:
+    @method_decorator(login_required)
+    def dispatch(self, request, *args, **kwargs):
+        if request.method.lower() in self.http_method_names:
+            handler = getattr(self, request.method.lower(), self.http_method_not_allowed)
+        else:
+            handler = self.http_method_not_allowed
+        return handler(request, *args, **kwargs)
 
-class UrlRequests(ListView):
+class UrlRequests(LoginRequired,ListView):
     model = PendingUrl
     context_object_name = 'data'
     ordering ='-requestDate'
-    paginate_by = 20
+    paginate_by = 2
     template_name='khojadmin/pendingurl.html'
 
     @method_decorator(login_required)
@@ -60,8 +115,18 @@ class UrlRequests(ListView):
 def dbms(request):
     return render(request, 'khojadmin/database.html')
 
-def feedback(request):
-    return render(request, 'khojadmin/feedback.html')
+class FeedbackView(LoginRequired, ListView):
+    model = feedback
+    template_name = 'khojadmin/feedback.html'
+    context_object_name = 'data'
+    paginate_by =20
+
+    def get_queryset(self):
+        return feedback.objects.filter(read=False).order_by('-report_date')
+
+class FeedbackDetail(LoginRequired,DetailView):
+    model = feedback
+    template_name='khojadmin/feedbackdetail.html'
 
 def dataManagement(request):
     return render(request,'khojadmin/dms.html')
