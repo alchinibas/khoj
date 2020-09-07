@@ -84,8 +84,19 @@ def adminAction(request):
                 return HttpResponse("Failure")
         return HttpResponse("1")
 
+@login_required
 def home(request):
-    return render(request, 'khojadmin/index.html')
+    data = {
+        "data":{
+            "feedback":len(feedback.objects.all()),
+            "sites":len(sites.objects.all()),
+            "uncrawled":len(uncrawled.objects.all()),
+            "users":2343,
+            "request":len(PendingUrl.objects.all()),
+        }
+        
+    }
+    return render(request, 'khojadmin/index.html',context=data)
 
 class LoginRequired:
     @method_decorator(login_required)
@@ -111,7 +122,7 @@ class UrlRequests(LoginRequired,ListView):
             handler = self.http_method_not_allowed
         return handler(request, *args, **kwargs)
 
-
+@login_required
 def dbms(request):
     return render(request, 'khojadmin/database.html')
 
@@ -119,7 +130,7 @@ class FeedbackView(LoginRequired, ListView):
     model = feedback
     template_name = 'khojadmin/feedback.html'
     context_object_name = 'data'
-    paginate_by =20
+    paginate_by =5
 
     def get_queryset(self):
         return feedback.objects.filter(read=False).order_by('-report_date')
@@ -128,15 +139,19 @@ class FeedbackDetail(LoginRequired,DetailView):
     model = feedback
     template_name='khojadmin/feedbackdetail.html'
 
+@login_required
 def dataManagement(request):
     return render(request,'khojadmin/dms.html')
 
+@login_required
 def report(request):
     return render(request,'khojadmin/report.html')
 
+@login_required
 def settings(request):
     return render(request, 'khojadmin/settings.html')
 
+@login_required
 def index(request):
     if os.path.exists('khoj_contents/content1'):
         print("Path Exists")
@@ -203,7 +218,7 @@ def crawl(request):
     crawler.crawler()
     return HttpResponse("Complete")
 
-
+@login_required
 def data_handler(request, action):
     if request.method == 'GET':
         if action == 'save':
@@ -299,7 +314,7 @@ def data_handler(request, action):
             print("Unwanted ids : ", iids)
     return HttpResponse("Completed")
 
-
+@login_required
 def url_filter(request):
     chk=0
     crawled_data = sites.objects.values_list('url')

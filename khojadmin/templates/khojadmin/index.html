@@ -27,27 +27,27 @@ Database - KhojAdmin
         <div class="col-lg-4">
            <div class="card  mb-3 shadow slide" style="max-width: 18rem;text-align:center;">
               <div class="card-body">
-                <p class="card-text " style="font-size:3rem;">DATAS</p>
+                <p class="card-text " style="font-size:3rem;">{% if data %} {{data.uncrawled}}{%endif %}</p>
               </div>
-               <div class="card-header" style="font-size:2rem;">DBMS</div>
+               <div class="card-header" style="font-size:2rem;">Unacknowledged Sites</div>
             </div>
             <div class="card  mb-3 shadow slide" style="max-width: 18rem;text-align:center;">
               <div class="card-body">
-                <p class="card-text " style="font-size:3rem;">DATAS</p>
+                <p class="card-text " style="font-size:3rem;">{% if data %} {{data.feedback}}{%endif %}</p>
               </div>
                <div class="card-header" style="font-size:2rem;">Complains</div>
             </div>
             <div class="card  mb-3 shadow slide" style="max-width: 18rem;text-align:center;">
               <div class="card-body">
-                <p class="card-text " style="font-size:3rem;">DATAS</p>
+                <p class="card-text " style="font-size:3rem;">{% if data %} {{data.request}}{%endif %}</p>
               </div>
                <div class="card-header" style="font-size:2rem;">Requests</div>
             </div>
             <div class="card  mb-3 shadow slide" style="max-width: 18rem;text-align:center;">
               <div class="card-body">
-                <p class="card-text " style="font-size:3rem;">DATAS</p>
+                <p class="card-text " style="font-size:3rem;">{% if data %} {{data.sites}}{%endif %}</p>
               </div>
-               <div class="card-header" style="font-size:2rem;">Visitors</div>
+               <div class="card-header" style="font-size:2rem;">Discovered Sites</div>
             </div>
 
         </div>

@@ -2,7 +2,7 @@
 {% block title %}
 Database - KhojAdmin
 {% endblock %}
-{% block body %}
+{% block actionmain %}
 <div class="container-fluid">
     <h3 class="text-dark mb-4">Data Management</h3>
 </div>
@@ -11,5 +11,16 @@ Database - KhojAdmin
 {% block activedms %}
 <li class="nav-item" role="presentation"><a class="nav-link active" href="{% url 'khojadmin:dms' %}"><i class="fas fa-laptop-code"></i><span>DMS</span></a></li>
 {% endblock %}
+{% block body %}
+<div class="container">
+	<div class="action d-flex justify-content-between flex-wrap">
+		<a class="text-white shadow-hover" href="">
+			<div class="action-item text-center bg-dark text-white m-3 p-2 action-width d-flex align-items-center justify-content-center">
+				<div class="text">Crawl</div>
+			</div>
+		</a>
+	</div>
+</div>
+{% endblock body %}
 
 

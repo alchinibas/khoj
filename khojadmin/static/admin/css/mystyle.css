@@ -7,3 +7,24 @@
 .o-nonee{
 	outline:0px;
 }
+.action-width{
+	width:200px;
+	height:200px;
+	vertical-align:middle;
+	font-size:1.4rem;
+	flex-wrap: wrap;
+}
+a{
+	text-decoration: none;
+}
+a:hover{
+	text-decoration: none;
+}
+.shadow-hover:hover{
+	box-shadow:2px 2px 5px grey;
+	transition:box-shadow .2s ease-out;
+}
+.shadow-hover{
+	box-shadow:0px 0px 0px grey;
+	transition:box-shadow .2s ease-in;
+}
