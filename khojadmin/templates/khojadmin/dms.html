@@ -13,14 +13,118 @@ Database - KhojAdmin
 {% endblock %}
 {% block body %}
 <div class="container">
+	<div class="form-control" id="message" style="visibility:hidden;">
+		Message
+	</div>
 	<div class="action d-flex justify-content-between flex-wrap">
-		<a class="text-white shadow-hover" href="">
-			<div class="action-item text-center bg-dark text-white m-3 p-2 action-width d-flex align-items-center justify-content-center">
-				<div class="text">Crawl</div>
+		<div class="action-items d-flex justify-content-between align-items-center">
+			<div class="p-3 d-flex action-item align-items-center justify-content-between">
+				<a class="text-white shadow-hover" href="#" id="crawlad" data-target= "changecrawl">
+					<div class="text-center bg-dark text-white m-3 p-2 action-width d-flex align-items-center justify-content-center">
+						<div class="text" id ="crawltext">Crawl</div>
+					</div>
+				</a>
+				<div class="changeholder d-flex align-items-baseline ml-2" style="position:relative;">
+					<div id="crawlresult">
+
+				</div>
+				</div>
+				
 			</div>
-		</a>
+		</div>
 	</div>
 </div>
+<form></form>
+<script type="text/javascript">
+	const crawl = document.getElementById("crawlad");
+	crawl.onclick = preparecrawl;
+	const message= document.getElementById("message");
+	crawl.addEventListener("touchend",preparecrawl,false);
+	const crawltext = document.getElementById("crawltext");
+	var initialized = 0;
+	var interrupt = -1;
+	function preparecrawl(){
+		if (initialized>0){
+			initialized = 0
+
+			if (message){
+
+				message.style.visibility="visible";
+				message.classList.add('text-warning');
+				message.innerHTML='Crawl Waiting to Stop'
+				setTimeout(function(){message.style.visibility='hidden';},4000);
+				crawltext.innerHTML = 'Crawl';
+			}
+		}
+		else{
+			initialized=1
+			if (message){
+				message.style.visibility='visible';
+				message.classList.add('text-success');
+				message.innerHTML = 'Crawl Initialized. Crawling...';
+				crawltext.innerHTML = 'Crawling'
+				setTimeout(function(){message.style.visibility='hidden';},4000);
+			}
+			startcrawl();	
+		}
+		
+	}
+	function startcrawl(){
+		function csrfSafeMethod(method) {
+			// these HTTP methods do not require CSRF protection
+			return (/^(GET|HEAD|OPTIONS|TRACE)$/.test(method));
+		}
+		$.ajaxSetup({
+			beforeSend: function(xhr, settings) {
+				if (!csrfSafeMethod(settings.type) && !this.crossDomain) {
+					xhr.setRequestHeader("X-CSRFToken", csrftoken="{{csrf_token}}");
+				}
+			}
+		});
+		$.ajax({
+			method:"POST",
+			data:{"action":"crawl"},
+			url:"{% url 'khojadmin:crawler' %}",
+			success:function(res){
+				console.log(initialized);
+				var crawlmessage = JSON.parse(res)
+				re1= crawlmessage['nexturl']
+				if (!crawlmessage['message']){
+					re2= "Stopping Action";
+					postresult();
+				}
+				else{
+					re2 = "Crawled: "+crawlmessage['message']['url'];
+					setTimeout(function(){
+						re1="Next Crawl: "+crawlmessage['nexturl'];
+						postresult();
+						if (initialized ==1){
+
+							startcrawl();
+						}
+						else{
+							message.style.visibility='visible';
+							message.innerHTML = 'Crawl Stopped';
+							setTimeout(function(){message.style.visibility='hidden';},4000);
+
+						}},
+						10);
+				}
+				function postresult(){
+					const result = document.getElementById("crawlresult");
+					var x = document.createElement("div");
+					x.innerHTML = re1;
+					var y = document.createElement("div");
+					y.innerHTML = re2;
+					result.append(x)
+					result.append(y)
+					result.scrollTop = result.scrollHeight;	
+				}
+				
+			}
+		});
+	}
+</script>
 {% endblock body %}
 
 

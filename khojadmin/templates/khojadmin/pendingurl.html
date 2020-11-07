@@ -24,7 +24,7 @@ Database - KhojAdmin
       <th scope="row">{{forloop.counter}}</th>
         <td><a href="{{items.url}}">{{items.url}}</a></td>
       <td>{{items.requestDate}}</td>
-      <td><a class="btn" href="{% url 'khojadmin:adminaction' %}?id={{items.pk}}">Aprove</a></td>
+      <td><a class="btn" href="{% url 'khojadmin:adminaction' %}?aproveURL={{items.pk}}">Aprove</a></td>
     </tr>
   </tbody>
     {% endfor %}

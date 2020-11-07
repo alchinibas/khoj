@@ -62,9 +62,21 @@ def adminAction(request):
                 messages.warning(request,"No data selected")
 
             return redirect('khojadmin:feedback')
+        elif 'aproveURL' in request.GET:
+            try:
+                getid = request.GET['aproveURL']
+                obj = PendingUrl.objects.get(id = int(getid))
+                u1 = uncrawled(url=obj.url)
+                u1.save()
+                obj.delete()
+                message.success(f"Approved id {getid}")
+            except Exception as e:
+                messages.warning(request,f'Error: {e}')
+                return redirect('khojadmin:urlrequests')
         else:
             raise PermissionDenied("403 Forbidden action access")
         return render(request, 'khojadmin/pendingurl.html')
+
     elif request.method=='POST':
         if request.POST['action'] == 'indexingurl':
             url=request.POST['url']
@@ -83,6 +95,12 @@ def adminAction(request):
             else:
                 return HttpResponse("Failure")
         return HttpResponse("1")
+
+@login_required
+def crawl(request):
+    status = crawler.crawler()
+
+    return HttpResponse(json.dumps(status))
 
 @login_required
 def home(request):
@@ -213,10 +231,6 @@ def index(request):
         print("Parsing Error")
     return HttpResponse("Process Complete")
 
-@login_required
-def crawl(request):
-    crawler.crawler()
-    return HttpResponse("Complete")
 
 @login_required
 def data_handler(request, action):

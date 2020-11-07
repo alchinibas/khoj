@@ -87,7 +87,7 @@ class ResultView(ListView):
     model = indexing
     template_name='home/result_page.html'
     context_object_name = 'search'
-    paginate_by = 3
+    paginate_by = 20
 
     def get_queryset(self):
         searchtext = self.request.GET['search-text']

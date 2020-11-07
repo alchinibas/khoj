@@ -12,6 +12,9 @@
 
 </head>
 <body class="bg bglight1">
+	<div class=" d-block text-center w-100" style="position:fixed;z-index:1009;">
+		<div class="message-box form-control d-none text-center text-white" id="messagebox"></div>
+	</div>
 	<div class="modal fade" id="featuremodal" tabindex="-1" role="dialog" aria-hidden="true">
 	  <div class="modal-dialog" role="document">
 	    <div class="modal-content">
@@ -97,7 +100,7 @@
 		</div>
 	</div>
 	<div class="container mb-5" style="position:relative;">
-		<div class="result-container row mb-4 justify-content-between" style="position:relative;box-sizing: border-box;margin-left:0px;margin-right:0px;">
+		<div class=" result-container row mb-4 justify-content-between" style="position:relative;box-sizing: border-box;margin-left:0px;margin-right:0px;">
 			<div class="result-area col-sm-7 bg device-height text-white" data-heightp="80">
 				<div class="special-area">
 
@@ -311,7 +314,13 @@
 			data:{"url":iurl,"action":"indexingurl"},
 			url:"{% url 'khojadmin:adminaction' %}",
 			success:function(res){
-				console.log(res); /* remained */
+				const messagebox = document.getElementById("messagebox");
+				messagebox.innerHTML = res;
+				messagebox.style.display = 'block';
+				messagebox.classList.add('text-info');
+				messagebox.classList.remove('d-none');
+				messagebox.classList.add('d-block');
+				setTimeout(function(){messagebox.classList.remove('d-block');messagebox.classList.add('d-none');},4000);
 			}
 		});
 	}

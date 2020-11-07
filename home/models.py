@@ -35,11 +35,6 @@ class indexing(models.Model):
         return self.key
 
 class feedback(models.Model):
-    def least_desc(self):
-        if len(self.desc)<=20:
-            return f'{self.desc}'
-        else:
-            return f'{self.desc[:20]}...'
 
     name=models.CharField(max_length=50)
     email=models.EmailField(max_length=50)
@@ -50,7 +45,12 @@ class feedback(models.Model):
     def __str__(self):
         return self.name + " : "+self.email
 
-
+    def least_desc(self):
+        if len(self.desc)<=20:
+            return f'{self.desc}'
+        else:
+            return f'{self.desc[:20]}...'
+            
 class search_text(models.Model):
     search_text = models.CharField(max_length=255)
     visit_couont = models.IntegerField(default=0)
