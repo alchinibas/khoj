@@ -150,6 +150,6 @@ def feedBack(request):
             return HttpResponse("True")
 
     else:
-        print("Fuck this shit i am out")
+        print("i am out")
 
 
