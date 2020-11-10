@@ -35,16 +35,19 @@ def Sites(items):
     if current:
         contents = items['description'].lower().split()
 
-        def index_core(target,id, priority):
+        def index_core(target,aid, priority):
+            start = -1
+            seq = 0
             for key in target:
                 q1 = indexing.objects.filter(key=key)
-                new_id = [{'id': id, 'p': priority, 'count': 0}]
+                new_id = [{'id': aid, 'p': priority, aid:[start,],'sequence': [aid+":"+str(seq),], 'count': 0}]
                 if len(q1) == 0:
                     reference_id = json.dumps(new_id, ensure_ascii=False)
                     q2 = indexing(key=key, site_id=reference_id)
                     if not q2:
                         print("failed")
                     q2.save()
+                    start = q2.id
                 else:
                     index_id = q1[0].id
                     ids = []
@@ -56,17 +59,22 @@ def Sites(items):
                     except:
                         raise Exception("failed to parse data")
                     for item in id_list:
-                        if item['id'] != id:
+                        if item['id'] != aid:
                             c = 0
                         else:
                             c = 1
                             break
+
                     if c == 0:
                         id_list.append({'id': id, "p": priority, 'count': 0})
                     else:
                         item['count'] += 1
+                        item[aid].append(start)
+                        item['sequence'].append(aid+":"+str(seq))
                     d_id = json.dumps(id_list, ensure_ascii=False)
                     q2 = indexing.objects.filter(id=index_id).update(site_id=d_id)
+                    start = q2.id
+                seq+=1
 
         index_core(contents,current.pk, 0)
         contents = items['title'].lower().split()

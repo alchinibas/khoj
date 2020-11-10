@@ -28,8 +28,9 @@ class uncrawled(models.Model):
 
 
 class indexing(models.Model):
-    site_id = models.CharField(max_length=255)
+    site_id = models.TextField(default = '')
     key = models.CharField(max_length=255)
+    site_ids = models.TextField(default = '')
 
     def __str__(self):
         return self.key

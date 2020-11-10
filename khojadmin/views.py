@@ -11,6 +11,7 @@ from django.views.generic import (
     ListView,
     DetailView,
 )
+    
 from django.core.exceptions import PermissionDenied
 from django.contrib import messages
 
