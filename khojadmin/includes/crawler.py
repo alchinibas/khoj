@@ -76,6 +76,7 @@ def Sites(items):
 
 
 def crawl(url, depth):
+    print("Crawl started")
     original = url
     # Determining DNS
     if len(domain) == 0:
@@ -115,7 +116,8 @@ def crawl(url, depth):
             response = requests.get(url)
         except:
             print('Failed to perform HTTP GET request on "%s"\n' % url)
-            return
+
+            return f'Failed to perform HTTP GET request on {url}'
 
         # accessing DNS file
 
@@ -124,7 +126,6 @@ def crawl(url, depth):
             links = content.find_all('a', href=True)
             try:
                 icon = content.find('link',attrs={'rel':'shortcut icon'})
-                print(icon,"here at icon")
                 icon = icon['href']
                 if icon.startswith("/"):
                     icon = base_url+icon
@@ -141,7 +142,7 @@ def crawl(url, depth):
             except Exception as e:
                 print("{'Error':"+e+", 'URL':"+url+"}")
                 uncrawled.objects.filter(url=url).delete()
-                return
+                return "{'Error':"+e+", 'URL':"+url+"}"
 
             # print('\n\nReturn:\n\n',json.dumps(result, indent=2))
 
@@ -153,16 +154,15 @@ def crawl(url, depth):
 
             try:
                 db_check1 = sites.objects.filter(url=url)
-                db_check1 = sites.objects.filter(url=url)
                 desc_len = db_check1[0].words_links.split(':')[0]
-                desc_links = db_check1[1].words_links.split(":")[1]
+                desc_links = db_check1[0].words_links.split(':')[1]
             except Exception as e:
-                print("Data lacks:",e)
+                print("No registered data:",e)
                 desc_len='0'
                 desc_links = '0'
             current_desc_len = len(description.split())
             current_links = len(tmp)
-            current_words_links = str(len(description.split())) + str(len(tmp))
+            current_words_links = str(current_desc_len) +":"+ str(len(tmp))
             result = {
                 'url': url,
                 'title': title,
@@ -177,10 +177,18 @@ def crawl(url, depth):
                 else:
                     db_check1[0].desc = description[:255]
                     db_check1[0].words_links = current_words_links
+                q = uncrawled.objects.filter(url = url).delete();
+                if q:
+                    print("Re url deleted")
+                else:
+                    print("Something is not right ")
+                    #here left to update indexing /indexing available on Sites.index_core()
+
             else:
                 Sites(result)
 
             if url not in crawled:
+                crawled.append(url)
                 if depth == 0:
                     tmp2 = [link for link in urls if link not in set(tmp1)]
                     for link in urls:
@@ -190,38 +198,50 @@ def crawl(url, depth):
                         'links': tmp2,
                     }
                     Uncrawled(ses_dict)
-                    return "Returned 1"
+                    return result
                 print(str(len(urls)) + " anchor tags found")
-                c = 0
-                for link in urls:
-                    try:
-                        if 'False URL' not in url and c < 5:
-                            print("at : " + link)
-                            crawl(url=link, depth=depth - 1)
-                            c += 1
-                    except KeyError:
-                        pass
 
-                return
+                #For recursive crawling
+
+                # c = 0
+                # for link in urls:
+                #     try:
+                #         if 'False URL' not in url and c < 5:
+                #             print("at : " + link)
+                #             crawl(url=link, depth=depth - 1)
+                #             c += 1
+                #     except KeyError:
+                #         pass
+
+                return f'URL:{url} already visited'
         except Exception as e:
             print("No links avaliable. Error :",e)
             uncrawled.objects.filter(url=original).delete()
-            return
+            return f'Crawled success but no links available'
     else:
         uncrawled.objects.filter(url= url).delete()
-        return
+        return f'URL:{url} up to date'
 
 
-def crawler(recursive = True):
-    try:
-        urls = uncrawled.objects.all()[:1]
-        link = urls[0].url
-        print("Source: " + link)
-    except Exception:
-        print("Failed : Either no links to crawl or error in database connection")
-        return
-    crawl(link, depth=1)
+def crawler(recursive = False):
+    message = {}
+    status = None
+    def geturl():
+        try:
+            urls = uncrawled.objects.all()[:1]
+            link = urls[0].url
+            print("Source: " + link)
+            return link
+        except Exception:
+            print("No links available to crawl")
+            return "No links available to crawl"
+    urlfind = geturl()
+    if urlfind!="No links available to crawl":
+        status = crawl(urlfind, depth=0)
+        message['message'] = status
+    message['nexturl'] = geturl()
+   
     if(recursive == True):
-        crawler()
+        status = crawler()
 
-    return
+    return message

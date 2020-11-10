@@ -1,20 +1,83 @@
-from django.shortcuts import render
+from django.shortcuts import render, get_object_or_404, redirect
 from django.http import HttpResponse
 from .includes import crawler
-from home.models import uncrawled, sites, indexing
+from home.models import uncrawled, sites, indexing, feedback
 from khojadmin.models import Feedback, PendingUrl
 import os
 import json
+from django.contrib.auth.decorators import login_required
+from django.utils.decorators import method_decorator
+from django.views.generic import (
+    ListView,
+    DetailView,
+)
+from django.core.exceptions import PermissionDenied
+from django.contrib import messages
 
-
+@login_required
 def adminAction(request):
-    print("Through pending url")
     if request.method =='GET':
-        id=request.GET['action']
+        if 'delete' in request.GET:
+            pk = request.GET['delete'];
+            obj = get_object_or_404(feedback, pk=pk)
+            obj.delete()
+            messages.success(request,"Deleted Successfully!!!")
+            return redirect('khojadmin:feedback')
+        elif 'check' in request.GET:
+            pk = request.GET['check']
+            obj=get_object_or_404(feedback,pk=pk)
+            obj.read = True
+            obj.save()
+            messages.success(request,"Marked Read Successfully!!!")
+            return redirect('khojadmin:feedback')
+        elif 'readSelected' in request.GET:
+            data = request.GET['deleteSelected']
+            if data:
+                ids =json.loads(data)
+                for pk in ids:
+                    try:
+                        obj = feedback.objects.get(pk = pk)
+                        obj.read =  True
+                        obj.save()
+                    except (feedback.DoesNotExist,KeyError):
+                        message.warning(f'Someting went wrong with data {pk}')
 
+                messages.success(request,"Selected messages deleted Successfully!!!")
+            else:
+                messages.warning(request,"No data selected")
+
+
+            return redirect('khojadmin:feedback')
+        elif 'deleteSelected' in request.GET:
+            data = request.GET['readSelected']
+            if data:
+                ids=json.loads(data)
+                for pk in ids:
+                    try:
+                        obj = feedback.objects.get(pk = pk).delete()
+                    except (feedback.DoesNotExist,KeyError):
+                        message.warning(f'Someting went wrong with data {pk}')
+                messages.success(request,"Selected messages marked read Successfully!!!")
+            else:
+                messages.warning(request,"No data selected")
+
+            return redirect('khojadmin:feedback')
+        elif 'aproveURL' in request.GET:
+            try:
+                getid = request.GET['aproveURL']
+                obj = PendingUrl.objects.get(id = int(getid))
+                u1 = uncrawled(url=obj.url)
+                u1.save()
+                obj.delete()
+                message.success(f"Approved id {getid}")
+            except Exception as e:
+                messages.warning(request,f'Error: {e}')
+                return redirect('khojadmin:urlrequests')
+        else:
+            raise PermissionDenied("403 Forbidden action access")
         return render(request, 'khojadmin/pendingurl.html')
+
     elif request.method=='POST':
-        print("entered")
         if request.POST['action'] == 'indexingurl':
             url=request.POST['url']
             if url:
@@ -33,30 +96,80 @@ def adminAction(request):
                 return HttpResponse("Failure")
         return HttpResponse("1")
 
+@login_required
+def crawl(request):
+    status = crawler.crawler()
+
+    return HttpResponse(json.dumps(status))
+
+@login_required
 def home(request):
-    return render(request, 'khojadmin/index.html')
+    data = {
+        "data":{
+            "feedback":len(feedback.objects.all()),
+            "sites":len(sites.objects.all()),
+            "uncrawled":len(uncrawled.objects.all()),
+            "users":2343,
+            "request":len(PendingUrl.objects.all()),
+        }
+        
+    }
+    return render(request, 'khojadmin/index.html',context=data)
 
+class LoginRequired:
+    @method_decorator(login_required)
+    def dispatch(self, request, *args, **kwargs):
+        if request.method.lower() in self.http_method_names:
+            handler = getattr(self, request.method.lower(), self.http_method_not_allowed)
+        else:
+            handler = self.http_method_not_allowed
+        return handler(request, *args, **kwargs)
 
-def urlRequests(request):
-    context={"data":[item for item in PendingUrl.objects.all()]}
-    return render(request, 'khojadmin/pendingurl.html', context=context)
+class UrlRequests(LoginRequired,ListView):
+    model = PendingUrl
+    context_object_name = 'data'
+    ordering ='-requestDate'
+    paginate_by = 2
+    template_name='khojadmin/pendingurl.html'
 
+    @method_decorator(login_required)
+    def dispatch(self, request, *args, **kwargs):
+        if request.method.lower() in self.http_method_names:
+            handler = getattr(self, request.method.lower(), self.http_method_not_allowed)
+        else:
+            handler = self.http_method_not_allowed
+        return handler(request, *args, **kwargs)
 
+@login_required
 def dbms(request):
     return render(request, 'khojadmin/database.html')
 
-def feedback(request):
-    return render(request, 'khojadmin/feedback.html')
+class FeedbackView(LoginRequired, ListView):
+    model = feedback
+    template_name = 'khojadmin/feedback.html'
+    context_object_name = 'data'
+    paginate_by =5
 
+    def get_queryset(self):
+        return feedback.objects.filter(read=False).order_by('-report_date')
+
+class FeedbackDetail(LoginRequired,DetailView):
+    model = feedback
+    template_name='khojadmin/feedbackdetail.html'
+
+@login_required
 def dataManagement(request):
     return render(request,'khojadmin/dms.html')
 
+@login_required
 def report(request):
     return render(request,'khojadmin/report.html')
 
+@login_required
 def settings(request):
     return render(request, 'khojadmin/settings.html')
 
+@login_required
 def index(request):
     if os.path.exists('khoj_contents/content1'):
         print("Path Exists")
@@ -119,11 +232,7 @@ def index(request):
     return HttpResponse("Process Complete")
 
 
-def crawl(request):
-    crawler.crawler()
-    return HttpResponse("Complete")
-
-
+@login_required
 def data_handler(request, action):
     if request.method == 'GET':
         if action == 'save':
@@ -219,7 +328,7 @@ def data_handler(request, action):
             print("Unwanted ids : ", iids)
     return HttpResponse("Completed")
 
-
+@login_required
 def url_filter(request):
     chk=0
     crawled_data = sites.objects.values_list('url')

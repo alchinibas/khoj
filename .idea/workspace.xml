@@ -2,33 +2,23 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="ff136dd2-5e0a-4bf4-9269-987ef53faf21" name="Default Changelist" comment="">
-      <change afterPath="$PROJECT_DIR$/khojadmin/templates/khojadmin/dms.html" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/khojadmin/templates/khojadmin/feedback.html" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/khojadmin/templates/khojadmin/header.html" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/khojadmin/templates/khojadmin/pendingurl.html" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/khojadmin/templates/khojadmin/settings.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/sen.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/sen.iml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/db.sqlite3" beforeDir="false" afterPath="$PROJECT_DIR$/db.sqlite3" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/home/static/home/js/my_js.js" beforeDir="false" afterPath="$PROJECT_DIR$/home/static/home/js/my_js.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/home/templates/home/result_page.html" beforeDir="false" afterPath="$PROJECT_DIR$/home/templates/home/result_page.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/home/urls.py" beforeDir="false" afterPath="$PROJECT_DIR$/home/urls.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/home/views.py" beforeDir="false" afterPath="$PROJECT_DIR$/home/views.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/khojadmin/admin.py" beforeDir="false" afterPath="$PROJECT_DIR$/khojadmin/admin.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/khojadmin/includes/crawler.py" beforeDir="false" afterPath="$PROJECT_DIR$/khojadmin/includes/crawler.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/khojadmin/models.py" beforeDir="false" afterPath="$PROJECT_DIR$/khojadmin/models.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/khojadmin/static/admin/css/mystyle.css" beforeDir="false" afterPath="$PROJECT_DIR$/khojadmin/static/admin/css/mystyle.css" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/khojadmin/templates/khojadmin/dms.html" beforeDir="false" afterPath="$PROJECT_DIR$/khojadmin/templates/khojadmin/dms.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/khojadmin/templates/khojadmin/header.html" beforeDir="false" afterPath="$PROJECT_DIR$/khojadmin/templates/khojadmin/header.html" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/khojadmin/templates/khojadmin/index.html" beforeDir="false" afterPath="$PROJECT_DIR$/khojadmin/templates/khojadmin/index.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/khojadmin/urls.py" beforeDir="false" afterPath="$PROJECT_DIR$/khojadmin/urls.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/khojadmin/views.py" beforeDir="false" afterPath="$PROJECT_DIR$/khojadmin/views.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/sen/settings.py" beforeDir="false" afterPath="$PROJECT_DIR$/sen/settings.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/sen/urls.py" beforeDir="false" afterPath="$PROJECT_DIR$/sen/urls.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/tmp_files/data.json" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/tmp_files/ses.json" beforeDir="false" />
     </list>
-    <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
     <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="DjangoConsoleOptions" custom-start-script="import sys; print('Python %s on %s' % (sys.version, sys.platform))&#10;import django; print('Django %s' % django.get_version())&#10;sys.path.extend([WORKING_DIR_AND_PYTHON_PATHS])&#10;if 'setup' in dir(django): django.setup()&#10;import django_manage_shell; django_manage_shell.run(PROJECT_ROOT)">
+    <option name="myCustomStartScript" value="import sys; print('Python %s on %s' % (sys.version, sys.platform))&#10;import django; print('Django %s' % django.get_version())&#10;sys.path.extend([WORKING_DIR_AND_PYTHON_PATHS])&#10;if 'setup' in dir(django): django.setup()&#10;import django_manage_shell; django_manage_shell.run(PROJECT_ROOT)" />
   </component>
   <component name="FileTemplateManagerImpl">
     <option name="RECENT_TEMPLATES">
@@ -43,11 +33,16 @@
   </component>
   <component name="ProjectId" id="1Xq8qJosN7rJIQgYFPex5wR5mT9" />
   <component name="ProjectLevelVcsManager" settingsEditedManually="true" />
+  <component name="ProjectViewState">
+    <option name="hideEmptyMiddlePackages" value="true" />
+    <option name="showLibraryContents" value="true" />
+  </component>
   <component name="PropertiesComponent">
     <property name="ASKED_ADD_EXTERNAL_FILES" value="true" />
     <property name="DefaultHtmlFileTemplate" value="HTML File" />
-    <property name="last_opened_file_path" value="$PROJECT_DIR$" />
-    <property name="settings.editor.selected.configurable" value="preferences.externalTools" />
+    <property name="WebServerToolWindowFactoryState" value="false" />
+    <property name="last_opened_file_path" value="$PROJECT_DIR$/sen/settings.py" />
+    <property name="settings.editor.selected.configurable" value="com.jetbrains.django.DjangoModulesConfigurable" />
   </component>
   <component name="RecentsManager">
     <key name="MoveFile.RECENT_KEYS">
@@ -55,32 +50,112 @@
       <recent name="C:\Users\Abiraj\Desktop\sen\home\templates\home" />
     </key>
   </component>
-  <component name="RunDashboard">
-    <option name="ruleStates">
-      <list>
-        <RuleState>
-          <option name="name" value="ConfigurationTypeDashboardGroupingRule" />
-        </RuleState>
-        <RuleState>
-          <option name="name" value="StatusDashboardGroupingRule" />
-        </RuleState>
-      </list>
-    </option>
+  <component name="RunManager">
+    <configuration default="true" type="Python.DjangoServer" factoryName="Django server">
+      <module name="sen" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="C:\Users\ajays\Envs\khoj\Scripts\python.exe" />
+      <option name="WORKING_DIRECTORY" value="" />
+      <option name="IS_MODULE_SDK" value="false" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <option name="launchJavascriptDebuger" value="false" />
+      <option name="port" value="8000" />
+      <option name="host" value="localhost" />
+      <option name="additionalOptions" value="" />
+      <option name="browserUrl" value="http://127.0.0.1:8000/" />
+      <option name="runTestServer" value="false" />
+      <option name="runNoReload" value="false" />
+      <option name="useCustomRunCommand" value="false" />
+      <option name="customRunCommand" value="" />
+      <method v="2" />
+    </configuration>
+    <configuration name="manage" type="Python.DjangoServer" factoryName="Django server">
+      <module name="sen" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+        <env name="DJANGO_SETTINGS_MODULE" value="sen.settings" />
+      </envs>
+      <option name="SDK_HOME" value="C:\Users\ajays\Envs\khoj\Scripts\python.exe" />
+      <option name="WORKING_DIRECTORY" value="" />
+      <option name="IS_MODULE_SDK" value="false" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <option name="launchJavascriptDebuger" value="false" />
+      <option name="port" value="8000" />
+      <option name="host" value="localhost" />
+      <option name="additionalOptions" value="" />
+      <option name="browserUrl" value="http://127.0.0.1:8000/" />
+      <option name="runTestServer" value="false" />
+      <option name="runNoReload" value="false" />
+      <option name="useCustomRunCommand" value="false" />
+      <option name="customRunCommand" value="" />
+      <method v="2" />
+    </configuration>
   </component>
   <component name="SvnConfiguration">
     <configuration />
+  </component>
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="Default task">
+      <changelist id="ff136dd2-5e0a-4bf4-9269-987ef53faf21" name="Default Changelist" comment="" />
+      <created>1599448371845</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1599448371845</updated>
+      <workItem from="1599448381152" duration="752000" />
+    </task>
+    <servers />
+  </component>
+  <component name="TypeScriptGeneratedFilesManager">
+    <option name="version" value="2" />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
     <option name="TAB_STATES">
       <map>
         <entry key="MAIN">
           <value>
-            <State>
-              <option name="COLUMN_ORDER" />
-            </State>
+            <State />
           </value>
         </entry>
       </map>
     </option>
+    <option name="oldMeFiltersMigrated" value="true" />
+  </component>
+  <component name="WindowStateProjectService">
+    <state x="206" y="140" key="#com.intellij.execution.impl.EditConfigurationsDialog" timestamp="1599449133568">
+      <screen x="0" y="0" width="1500" height="970" />
+    </state>
+    <state x="206" y="140" key="#com.intellij.execution.impl.EditConfigurationsDialog/0.0.1500.970@0.0.1500.970" timestamp="1599449133568" />
+    <state x="666" y="229" key="FileChooserDialogImpl" timestamp="1599448802125">
+      <screen x="0" y="0" width="1500" height="970" />
+    </state>
+    <state x="666" y="229" key="FileChooserDialogImpl/0.0.1500.970@0.0.1500.970" timestamp="1599448802125" />
+    <state width="706" height="245" key="GridCell.Tab.0.bottom" timestamp="1599448982465">
+      <screen x="0" y="0" width="1500" height="970" />
+    </state>
+    <state width="706" height="245" key="GridCell.Tab.0.bottom/0.0.1500.970@0.0.1500.970" timestamp="1599448982465" />
+    <state width="706" height="245" key="GridCell.Tab.0.center" timestamp="1599448982464">
+      <screen x="0" y="0" width="1500" height="970" />
+    </state>
+    <state width="706" height="245" key="GridCell.Tab.0.center/0.0.1500.970@0.0.1500.970" timestamp="1599448982464" />
+    <state width="706" height="245" key="GridCell.Tab.0.left" timestamp="1599448982464">
+      <screen x="0" y="0" width="1500" height="970" />
+    </state>
+    <state width="706" height="245" key="GridCell.Tab.0.left/0.0.1500.970@0.0.1500.970" timestamp="1599448982464" />
+    <state width="706" height="245" key="GridCell.Tab.0.right" timestamp="1599448982464">
+      <screen x="0" y="0" width="1500" height="970" />
+    </state>
+    <state width="706" height="245" key="GridCell.Tab.0.right/0.0.1500.970@0.0.1500.970" timestamp="1599448982464" />
+    <state x="363" y="152" key="SettingsEditor" timestamp="1599448977844">
+      <screen x="0" y="0" width="1500" height="970" />
+    </state>
+    <state x="363" y="152" key="SettingsEditor/0.0.1500.970@0.0.1500.970" timestamp="1599448977844" />
   </component>
 </project>

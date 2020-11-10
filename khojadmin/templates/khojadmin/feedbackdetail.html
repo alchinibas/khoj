@@ -1,0 +1,23 @@
+{% extends 'khojadmin/header.html' %}
+{% block title %}
+Feedback - KhojAdmin
+{% endblock %}
+{% block actionmain %}
+<div class="d-flex justify-content-between nav-bar">
+    <h3 class="text-dark mb-4">Feedback</h3>
+</div>
+
+{% endblock actionmain %}
+{% block activefeedback %}
+<li class="nav-item" role="presentation"><a class="nav-link active" href="{% url 'khojadmin:feedback' %}"><i class="fas fa-bullhorn"></i><span>Feedback</span></a></li>
+{% endblock %}
+{% block body %}
+	{% if object %}
+					<div class="desc">{{object.desc}}</div>
+					<div class="date">{{object.report_date}}</div>
+	{% else %}
+		<h1>No Data Found</h1>
+	{% endif %}
+{% endblock body %}
+
+

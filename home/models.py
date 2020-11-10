@@ -1,9 +1,7 @@
 from django.db import models
 from django.contrib import admin
-import django
+from django.utils import timezone
 
-class indexingAdmin(admin.ModelAdmin):
-    search_fields = ['key']
 
 
 class sites(models.Model):
@@ -36,26 +34,23 @@ class indexing(models.Model):
     def __str__(self):
         return self.key
 
-
-class IndexerSecondary(models.Model):
-    site_id = models.CharField(max_length=255)
-    key1 = models.CharField(max_length=50)
-    key2 = models.CharField(max_length=50)
-
-    def __str__(self):
-        return self.key1 + ' ' + self.key2
-
-
 class feedback(models.Model):
+
     name=models.CharField(max_length=50)
     email=models.EmailField(max_length=50)
     desc=models.TextField()
-    report_date=models.DateField(default = django.utils.timezone.now)
+    report_date=models.DateTimeField(default =timezone.now)
+    read = models.BooleanField(default = False)
 
     def __str__(self):
         return self.name + " : "+self.email
 
-
+    def least_desc(self):
+        if len(self.desc)<=20:
+            return f'{self.desc}'
+        else:
+            return f'{self.desc[:20]}...'
+            
 class search_text(models.Model):
     search_text = models.CharField(max_length=255)
     visit_couont = models.IntegerField(default=0)

@@ -1,7 +1,7 @@
 from django.db import models
-import django
+from django.utils import timezone
 class PendingUrl(models.Model):
-    requestDate = models.DateTimeField(default=django.utils.timezone.now)
+    requestDate = models.DateTimeField(default=timezone.now)
     url=models.CharField(max_length = 255)
 
     def __str__(self):
@@ -10,7 +10,7 @@ class PendingUrl(models.Model):
 class Feedback(models.Model):
     email=models.EmailField()
     message = models.TextField()
-    messageDate = models.DateTimeField(default = django.utils.timezone.now)
+    messageDate = models.DateTimeField(default=timezone.now)
 
     def __str__(self):
         if(len(self.message)>100):
