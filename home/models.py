@@ -1,13 +1,14 @@
-from django.db import models
+from djongo import models
 from django.contrib import admin
 from django.utils import timezone
+# from django import forms
 
 
 
 class sites(models.Model):
-    url = models.TextField()
-    title = models.CharField(max_length=255)
-    desc = models.CharField(max_length=400)
+    url = models.TextField(default = '')
+    title = models.CharField(max_length=255,default = '')
+    desc = models.CharField(max_length=400,default = '')
     domain = models.CharField(max_length=20, default='.com')
     display = models.BooleanField(default=True)
     visit_count = models.IntegerField(default=0)
@@ -16,9 +17,8 @@ class sites(models.Model):
     words_links = models.CharField(max_length= 255, default = '-')
     icon = models.CharField(max_length=255, default = "/favicon.ico")
 
-    def __str__(self):
-        return self.title
-
+    class Meta:
+        abstract = True
 
 class uncrawled(models.Model):
     url = models.CharField(max_length=255)
@@ -26,14 +26,28 @@ class uncrawled(models.Model):
     def __str__(self):
         return self.url
 
+class Key(models.Model):
+    value = models.CharField(max_length=255)
+    class Meta:
+        abstract=True
+
+class Original(models.Model):
+    original = models.CharField(max_length=255)
+    order = models.IntegerField(max_length=255)
+    priority = models.IntegerField()
+
+    class Meta:
+        abstract=True
 
 class indexing(models.Model):
-    site_id = models.TextField(default = '')
-    key = models.CharField(max_length=255)
-    site_ids = models.TextField(default = '')
+    key = models.EmbeddedField(model_container = Key,null = True)
+    previous_keys = models.ArrayField(model_container = Key,null=True)
+    file = models.EmbeddedField(model_container = sites, null = True,)
+
 
     def __str__(self):
         return self.key
+
 
 class feedback(models.Model):
 
