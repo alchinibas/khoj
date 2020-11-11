@@ -31,56 +31,62 @@ def Sites(items):
                     display=True, words_links=items['words_links'],icon = items['icon'])
     current.save()
     uncrawled.objects.filter(url = items['url']).delete()
-
+    print("Deleting crawled::")
     if current:
         contents = items['description'].lower().split()
 
         def index_core(target,aid, priority):
             start = -1
             seq = 0
-            for key in target:
-                q1 = indexing.objects.filter(key=key)
-                new_id = [{'id': aid, 'p': priority, aid:[start,],'sequence': [aid+":"+str(seq),], 'count': 0}]
-                if len(q1) == 0:
-                    reference_id = json.dumps(new_id, ensure_ascii=False)
-                    q2 = indexing(key=key, site_id=reference_id)
-                    if not q2:
-                        print("failed")
-                    q2.save()
-                    start = q2.id
-                else:
-                    index_id = q1[0].id
-                    ids = []
-                    c = 0
-
-                    ids = q1[0].site_id
-                    try:
-                        id_list = json.loads(ids)
-                    except:
-                        raise Exception("failed to parse data")
-                    for item in id_list:
-                        if item['id'] != aid:
-                            c = 0
-                        else:
-                            c = 1
-                            break
-
-                    if c == 0:
-                        id_list.append({'id': id, "p": priority, 'count': 0})
+            try:
+                for key in target:
+                    q1 = indexing.objects.filter(key=key)
+                    new_id = [{'id': aid, 'p': priority, aid:[start,],'sequence': [str(aid)+":"+str(seq),], 'count': 0}]
+                    if len(q1) == 0:
+                        reference_id = json.dumps(new_id, ensure_ascii=False)
+                        q2 = indexing(key=key, site_id=reference_id,site_ids =json.dumps([aid,]))
+                        if not q2:
+                            print("failed")
+                        q2.save()
+                        start = q2[0].id
+                        print("New Key generated::",key-q2[0].id)
                     else:
-                        item['count'] += 1
-                        item[aid].append(start)
-                        item['sequence'].append(aid+":"+str(seq))
-                    d_id = json.dumps(id_list, ensure_ascii=False)
-                    q2 = indexing.objects.filter(id=index_id).update(site_id=d_id)
-                    start = q2.id
-                seq+=1
+                        print("Preparing key edit::",key)
+                        index_id = q1[0].id
+                        ids = []
+                        c = 0
+
+                        ids = q1[0].site_id
+                        try:
+                            id_list = json.loads(ids)
+                        except:
+                            raise Exception("failed to parse data")
+                        if q1[0].site_ids:
+                            if aid not in json.loads(q1[0].site_ids):
+                                id_list.append(new_id)
+                            else:
+                                for item in id_list:
+                                    print(item)
+                                    if item['id']==aid:
+                                        item['count'] += 1
+                                        item[str(aid)].append(start)
+                                        item['sequence'].append(str(aid)+":"+str(seq))
+                                        print(":::Changing key with available ids")
+                        d_id = json.dumps(id_list, ensure_ascii=False)
+                        q2 = indexing.objects.filter(id=index_id).update(site_id=d_id)
+                        start = index_id
+
+                    seq+=1
+            except Exception as err:
+                print("error ",err)
 
         index_core(contents,current.pk, 0)
         contents = items['title'].lower().split()
         index_core(contents,current.pk, 1)
         current.indexed = True
         current.save()
+    else:
+        print("Current variable not available")
 
 
 def crawl(url, depth):
@@ -138,11 +144,11 @@ def crawl(url, depth):
                 if icon.startswith("/"):
                     icon = base_url+icon
             except Exception as e:
-                print("False Icon",e)
+                raise("False Icon",e)
 
             try:
                 title = content.find('title').text
-                for script in content(["script", "style", "footer", "a", "button", "head", "meta"]):
+                for script in content(["script", "style", "footer", "button", "head",]):
                     script.extract()
                 description = content.get_text()
                 description = ' '.join(description.split())
@@ -157,7 +163,7 @@ def crawl(url, depth):
             # urls=list(set([url['href'] for url in links]))
             tmp = [url['href'] for url in links]
             urls = [url_rebuild(url, base_url) for url in set(tmp) if url not in crawled]
-
+            print("No of links:::",len(urls))
             # -----------Updating/saving data
 
             try:
@@ -165,7 +171,7 @@ def crawl(url, depth):
                 desc_len = db_check1[0].words_links.split(':')[0]
                 desc_links = db_check1[0].words_links.split(':')[1]
             except Exception as e:
-                print("No registered data:",e)
+                print("New data:")
                 desc_len='0'
                 desc_links = '0'
             current_desc_len = len(description.split())
@@ -189,7 +195,7 @@ def crawl(url, depth):
                 if q:
                     print("Re url deleted")
                 else:
-                    print("Something is not right ")
+                    raise("Something is not right ")
                     #here left to update indexing /indexing available on Sites.index_core()
 
             else:
