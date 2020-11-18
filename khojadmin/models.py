@@ -1,4 +1,4 @@
-from django.db import models
+from djongo import models
 from django.utils import timezone
 class PendingUrl(models.Model):
     requestDate = models.DateTimeField(default=timezone.now)
