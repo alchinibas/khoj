@@ -20,50 +20,66 @@ crawled = []
 stop_words = []
 page_lang = 'default'
 # ----------Requetion Dabatase nd Collections-------------
-connect = pymongo.MongoClient("mongodb://127.0.0.1:27017/")
+# connect = pymongo.MongoClient("mongodb://127.0.0.1:27017/")
+connect = pymongo.MongoClient("localhost",27017)
 db = connect["khoj"]
 uncrawled = db["home_uncrawled"]
 site = db["home_sitedetail"]
 keyExtract = db["home_keyextract"]
 Index = db["home_index"]
 colkey = db["home_key"]
-SiteRank = db.home_siterank
-rankhandler = db.home_rankhandler
+SiteRank = db["home_siterank"]
+rankhandler = db["home_rankhandler"]
 
 # ---------------------------------------------#
 
 
 # ------Saves uncrawled urls---------
-def Uncrawled(items):
-    links = items['links']
-    for url in links:
-        check = uncrawled.find({'url': url})
-        if not check and 'False URL' not in url:
-            q = uncrawled.insert_one({'url': url})
+def Uncrawled(links):
+    tmp=[]
+    check = uncrawled.find({"url":{"$in":links}})
+    if check:
+        av = [i["url"] for i in check]
+    tmp=[{"url":i,"ack":False} for i in links if i not in av and 'False URL' not in i]
+    # for url in links:
+    #     if 'False URL' not in url:
+    #         check = uncrawled.find({'url': url})
+    #         if not check:
+    #             tmp.append({"url":url,"ack":False})
+    uncrawled.insert_many(tmp)
 
 # -----------Ranking Site --------------------
 
-def InsertRank(url, urls, fu=False):
+def InsertRank(siteid,url, urls, fu=False):
 
-    def rank_inner(url):
-        rnk = SiteRank.find_one({"site.url":url})
+    def rank_inner(link,major=False):
+        rnk = SiteRank.find_one({"url":link})
+
         if rnk :
             if not fu:
-                SiteRank.update_one({"site.url":url},{"$inc":{"rank":1}})
+                if major and not rnk["site"]:
+                    SiteRank.update_one({"url":link},{"$set":{"site":siteid},"$inc":{"rank":1}})
+                    
+                else:
+                    SiteRank.update_one({"url":link},{"$inc":{"rank":1}})
             return rnk["_id"]
 
         else:
-            rnk1 = SiteRank.insert_one({"site":{"url":url},"rank":1})
+            if major:
+                rnk1 = SiteRank.insert_one({"url":link,"site":siteid,"rank":1})
+            else:
+                rnk2 = 1 if not fu else 0
+                rnk1 = SiteRank.insert_one({"url":link,"site":"","rank":rnk2})
             return rnk1.inserted_id
     if not fu:
-        rnk = rank_inner(url)
+        rank_inner(url,major=True)
     urlids = []
     for link in urls:
         urlids.append(rank_inner(link))
     if not fu:
-        rankhandler.remove({"url":url})
-        rankhandler.insert_one({"url":url,"links":urlids})
-        return SiteRank.find_one({"_id":rnk})["rank"]
+        rankhandler.remove({"site":siteid})
+        rankhandler.insert_one({"site":siteid,"links":urlids})
+        # return SiteRank.find_one({"_id":rnk})["rank"]
     return urlids
     
 
@@ -72,23 +88,24 @@ def InsertRank(url, urls, fu=False):
 #-------------UpdateRank---------------------
 
 def UpdateRank(url,urlids):
-    case1 = rankhandler.find_one({"url":url})
+    case1 = rankhandler.find_one({"site":url})
     if case1:
         links = [i for i in case1["links"]]
         new = urlids
         if links:
             old = [i for i in links if i not in urlids]
             if old:
-                SiteRank.update_many({"site.url":{"$in":old}},{"$inc":{"rank":-1}})
-                rankhandler.update_many({"url":url},{"$pull":{"links":{"$in":old}}})
+                SiteRank.update_many({"_id":{"$in":old}},{"$inc":{"rank":-1}})
+                rankhandler.update_many({"site":url},{"$pull":{"links":{"$in":old}}})
             new = [i for i in urlids if i not in links]
         if new:
-            rankhandler.update_many({"url":url},{"$addToSet":{"links":{"$each":new}}})
+            rankhandler.update_many({"site":url},{"$addToSet":{"links":{"$each":new}}})
+            SiteRank.update_many({"_id":{"$in":new}},{"$inc":{"rank":1}})
 
 # --------Saves site data---------------
 def Sites(items,lang,urls):
-    site_detail = 1
-    db_check1 = site.find_one({"site.url":items['url']})
+    siteid=''
+    db_check1 = site.find_one({"url":items['url']})
     if db_check1:
         if db_check1['word_links'] == items['words_links'] :
             print("This site exits in databae")
@@ -97,36 +114,33 @@ def Sites(items,lang,urls):
             siteid=db_check1["_id"]
             print("Site to be changed::",siteid)
 
-            Index.delete_many({"sites":siteid})
+            Index.update_many({"sites":siteid},{"$pull":{"sites":siteid}})
             keyExtract.delete_many({"file":siteid})
-            urlids = InsertRank(items['url'],urls,fu=True)
-            UpdateRank(items['url'],urlids)
-            site.update({"site.url":items['url']},{"$addToSet":{
+            urlids = InsertRank(siteid,items['url'],urls,fu=True)
+            UpdateRank(siteid,urlids)
+
+            site.update({"url":items['url']},{"$set":{
                 "desc":items['description'][:100],
                 "title": items['title'],
-                "visit_count": 0,
                 "word_links": items['words_links'],
                 "icon": items['icon'],
-                }},upsert=True)
+                }},upsert=False)
     else:
-        # SiteRank.insert_one({"site":{"url":items['url']},"rank":1.0})
-        p = InsertRank(items['url'],urls)
         site_detail = site.insert_one({
-            "site": {"url": items['url']},
+            "url":items['url'],
             "desc":items['description'][:100],
             "title": items['title'],
-            "domain": ".com",
             "display": True,
             "visit_count": 0,
-            "priority":p,
-            "indexed": True,
             "word_links": items['words_links'],
             "icon": items['icon'],
         })
         siteid=site_detail.inserted_id
-    # uncrawled.delete_many({"url": items['url']})
+        print("SIste created", siteid)
+        InsertRank(siteid,items['url'],urls)
+    uncrawled.delete_many({"url": items['url']})
     # print("site crawled and Deleting crawled::")
-    if site_detail:
+    if siteid:
         contents = items['description'].split()
 
         def index_core(target, priority,ktype):
@@ -184,23 +198,13 @@ def Sites(items,lang,urls):
                         key = " ".join(stop_words)+" "+key
                         stop_words.clear()
                     exist_check = Index.find_one({"_id": ckey},{"sites":0})
-                    # if exist_check:
-                        # start = exist_check["_id"]
                     if exist_check:
                         exist= keyExtract.find_one({"key.value": ckey,"file":siteid}, {"original":0})
-                        # print("Exist value",exist)
                         if exist:
                             start = exist["_id"]
-                            # original = exist['index'][0]['original']
-                            # pre_keys=exist['index'][0]['previous_keys']
-                            # priority=exist['index'][0]['priority']
-                            # print("Updating existing index")
                             keyExtract.update_one({"_id":exist["_id"]},{"$push":{
                                     "original":{"original":key,"ktype":ktype,"order":seq}
                                 }},upsert=True)
-                            #priority set by dictionary importance
-
-                            # pre_keys.append({"key":start})
                         else:
                             ind = keyExtract.insert_one({"key":{"value":ckey},
                                 "original":[{"original":key,"ktype":ktype,"order":seq}],
@@ -211,7 +215,6 @@ def Sites(items,lang,urls):
                                 "sites":siteid
                                 }})
                     else:
-                        # print("New Key/ Found",ckey)
                         ind = keyExtract.insert_one({
                             "key":{"value":ckey},
                             "original":[{"original":key,"ktype":ktype,"order":seq}],
@@ -230,7 +233,7 @@ def Sites(items,lang,urls):
     else:
         print("Current variable not available")
 
-def crawl(url, depth):
+def crawl(url):
     original = url
     # Determining DNS
     if len(domain) == 0:
@@ -269,17 +272,16 @@ def crawl(url, depth):
     except:
         check = True
     if check:
-        print("Crawl allowed:")
         try:
-            print('Crawling url: "%s" at depth: %d' % (url, depth))
+            print('Crawling url: "%s" at depth: '% (url))
             headers = {
-                "User-Agent":"Mozilla/5.0 AppleWebKit/537.36 (KHTML, like Gecko; compatible; Googlebot/2.1; +http://www.google.com/bot.html) Chrome/W.X.Y.Z Safari/537.36",
+                "User-Agent":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/87.0.4280.66 Safari/537.3",
                 "From":"alchinbas123@gmail.com"
             }
             response = requests.get(url = url,headers = headers)
         except:
             print('Failed to perform HTTP GET request on "%s"\n' % url)
-
+            uncrawled.delete_many({"url":url})
             return f'Failed to perform HTTP GET request on {url}'
 
         # accessing DNS file
@@ -289,7 +291,11 @@ def crawl(url, depth):
 
         content = BeautifulSoup(response.text, 'lxml')
         try:
-            page_lang=content.html['lang']
+            try:
+                page_lang=content.find('html')['lang']
+            except:
+                page_lang='en'
+
             links = content.find_all('a', href=True)
             try:
                 icon = content.find('link', attrs={'rel': 'shortcut icon'})
@@ -308,14 +314,9 @@ def crawl(url, depth):
                 print("Description of %d words", len(description))
             except Exception as e:
                 print("{'Error':" + e + ", 'URL':" + url + "}")
-                # uncrawled.objects.filter(url=url).delete()
                 uncrawled.delete_one({"url":url})
                 return "{'Error':" + e + ", 'URL':" + url + "}"
 
-            # print('\n\nReturn:\n\n',json.dumps(result, indent=2))
-
-            # urls=list(set([url['href'] for url in links]))
-            # print("ReBuilding URL")
             tmp = [url['href'] for url in links]
             urls = [url_rebuild(url, base_url)
                     for url in set(tmp) if url not in crawled]
@@ -324,7 +325,6 @@ def crawl(url, depth):
             # -----------Updating/saving data
 
             current_desc_len = len(description.split())
-            current_links = len(tmp)
             current_words_links = str(current_desc_len) + ":" + str(len(tmp))
             # print("Current word link/s",current_words_links)
             result = {
@@ -337,25 +337,11 @@ def crawl(url, depth):
             }
 
             Sites(result,page_lang,urls)
+            Uncrawled(urls)
 
-            if url not in crawled:
-                crawled.append(url)
-                if depth == 0:
-                    tmp2 = [link for link in urls if link not in set(tmp1)]
-                    for link in urls:
-                        tmp1.append(link)
-                    ses_dict = {
-                        'from': url,
-                        'links': tmp2,
-                    }
-                    Uncrawled(ses_dict)
-                    return result
-                print(str(len(urls)) + " anchor tags found")
-
-                return f'URL:{url} already visited'
         except Exception as e:
             print("No links avaliable. Error :", e)
-            # uncrawled.delete_many({"url":original})
+            uncrawled.delete_many({"url":original})
             return f'Crawled success but no links available'
     else:
         uncrawled.delete_many({"url":url})
@@ -367,17 +353,20 @@ def crawler(recursive=False):
     status = None
 
     def geturl():
-        try:
-            urls = uncrawled.find_one()
+        urls = uncrawled.find_one({"ack":True})
+        if urls:
             link = urls['url']
+            if not link:
+                uncrawled.delete_many({"url":""})
+                geturl()
             print("Source: " + link)
             return link
-        except Exception:
-            # print("No links available to crawl")
-            return "No links available to crawl"
+        else:
+            
+            return f'No links available'
     urlfind = geturl()
-    if urlfind != "No links available to crawl":
-        status = crawl(urlfind, depth=0)
+    if urlfind != "No links available":
+        status = crawl(urlfind)
         message['message'] = status
     message['nexturl'] = geturl()
 

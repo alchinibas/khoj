@@ -35,20 +35,20 @@ def site():
 
 def item():
 	item = dict()
-	item['url'] = 'url3'
+	item['url'] = 'url1'
 	item['domain']=".com"
 	b = "I lost my kitab"
-	c = "dd is a kitab chor"
+	c = "dd is a kitab chorni"
 	item['description']=b
 	item['display']=True
 	item['priority']=1
-	item['title']='chorni'
+	item['title']='kitab lost'
 	item['lang']='en'
-	item['words_links']="d35"
+	item['words_links']="d3ds3"
 	item['icon']="/favicon.ico"
 	item['visit_count']=0
 	u1 = ['url3','url2','url5','url6']
-	u2 = ['url1','url2','url4']
+	u2 = ['url1','url6','url7']
 	Sites(item,'en',u2)
 
 def find(value):
@@ -61,3 +61,4 @@ def cleardb():
 	rnkx.remove({})
 	rnk.remove({})
 	sitex.remove({})
+	uncrawl.remove({})

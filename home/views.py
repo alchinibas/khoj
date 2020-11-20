@@ -5,14 +5,15 @@ from home.models import Index,feedback
 from django.http import HttpResponse
 from django.views.generic import ListView
 import pymongo as p
-
+from bson.objectid import ObjectId
+from django.utils import timezone
 
 con = p.MongoClient("localhost", 27017)
 db = con.khoj
 searchText = db.home_searchtext
 Index = db.home_index
 key = db.home_keyextract
-
+fb = db.home_feedback
 
 def index(request):
     return render(request, "home/home_page.html")
@@ -39,10 +40,43 @@ def loadRec(request):
 def loadData(request):
     result=[]
     if request.method == 'GET':
-        result =json.loads("\""+unescape(request.GET['ids'])+"\"")
-        # data = key.aggregate([{"$match":{""}}])
-        print(result)
-        comp=json.dumps(result)
+        result =[ObjectId(i) for i in json.loads(unescape(request.GET['ids']).replace("'","\""))]
+        # result = request.GET['ids']
+        text = request.GET['searchtext']
+        print(result,text)
+        data = key.aggregate([
+            {"$match":{"$text":{"$search":text},"file":{"$in":result}}},
+            {"$unwind":"$original"},
+            {"$match":{"original.ktype":"body"}},
+            {"$sort":{"original.order":1}},
+            {"$group":{"_id":"$file","file":{"$first":"$file"},"keys":{"$push":"$original"}}},
+            {"$project":{"_id":0,"file":1,"keys":{"$slice":["$keys",3]}}},
+            {"$unwind":"$keys"},
+            {"$lookup":{"from":"home_keyextract","let":{"site":"$file","ord":"$keys"},"pipeline":[
+                {"$match":{"$expr":{"$eq":["$file","$$site"]}}},
+                {"$unwind":"$original"},
+                {"$match":{"original.ktype":"body","$expr":{"$and":[
+                    {"$gt":["$original.order",{"$sum":["$$ord.order",-25]}]},
+                    {"$lt":["$original.order",{"$sum":["$$ord.order",25]}]}
+                ]}}},
+                {"$sort":{"original.order":1}},
+                {"$group":{"_id":"$file","content":{"$push":"$original"}}},
+                {"$project":{"_id":0,"value":"$content"}}
+                ],"as":"content"}},
+            {"$unwind":"$content"},
+            {"$lookup":{
+                "from":"home_sitedetail","localField":"file","foreignField":"_id","as":"site"}
+            },{"$unwind":"$site"},
+            {"$group":{"_id":"$file","content":{"$push":"$content"},"url":{"$first":"$site.url"},"title":{"$first":"$site.title"}}},
+            ])
+        result = []
+        for i in data:
+            tmp=[]
+            for j in i["content"]:
+                for k in j["value"]:
+                    tmp.append(k) if k not in tmp else False
+            i["content"]=' '.join([t["original"] for t in tmp])[:250]
+            result.append(i)
         return render(request,'home/result_viewer.html',context={'result':result})
 
 
@@ -55,22 +89,26 @@ class ResultView(ListView):
     def get_queryset(self):
         searchtext = self.request.GET['search-text']
         checked = searchText.find_one({"search_text":searchtext})
-        # checkd = search_text.objects.filter(search_text=searchtext)
         if checked:
             searchText.update({"search_text":searchtext,},{"$inc":{"visit_count":1}})
         else:
             searchText.insert_one({"search_text":searchtext,"visit_count":1,"priority":0})
-        # keys = searchtext.split()
         '''Complex pymongo data search and match'''
-        data = Index.aggregate([{"$match":{"$text":{"$search":searchtext}}},{"$unwind":"$sites"},{"$group":{"_id":"$sites","count":{"$sum":1}}},{"$lookup":{"from":"home_sitedetail","localField":"_id","foreignField":"_id","as":"sitedetail"}},{"$project":{"_id":1,"url":"$sitedetail.site.url","count":1}},{"$lookup":{"from":"home_siterank","localField":"url","foreignField":"site.url","as":"rank"}},{"$project":{"count":1,"rank":{"$first":"$rank.rank"}}},{"$sort":{"rank":-1,"count":-1}},{"$project":{"_id":1}}])
-        return [i["_id"] for i in data]
+        data = Index.aggregate([
+            {"$match":{"$text":{"$search":searchtext}}},
+            {"$unwind":"$sites"},
+            {"$group":{"_id":"$sites","count":{"$sum":1}}},
+            {"$lookup":{"from":"home_siterank","localField":"_id","foreignField":"site","as":"rank"}},
+            {"$project":{"count":1,"rank":{"$first":"$rank.rank"}}},
+            {"$sort":{"rank":-1,"count":-1}}])
+        return [str(i["_id"]) for i in data]
 
     '''Adding search text in context'''
     def get_context_data(self, **kwargs):
         searchtext = self.request.GET['search-text']
         context = super().get_context_data(**kwargs)
         context['searchtext'] = searchtext
-        print(len(context),context)
+        # print(len(context),context)
         return context
 
 
@@ -95,8 +133,7 @@ def feedBack(request):
             name=request.POST['name']
             email=request.POST['email']
             desc=request.POST['desc']
-            q5= feedback(name=name, email=email, desc=desc)
-            q5.save()
+            q5= fb.insert_one({"name":name,"email":email,"desc":desc,"report_date":timezone.now()})
             if not q5:
                 print("Failed TO save")
             # print(name,email,desc)
@@ -108,6 +145,6 @@ def feedBack(request):
             return HttpResponse("True")
 
     else:
-        print("Fuck this shit i am out")
+        return "Wrong RequestMethod"
 
 

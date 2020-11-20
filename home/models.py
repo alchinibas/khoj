@@ -25,21 +25,18 @@ class Site(models.Model):
 
 class SiteRank(models.Model):
     _id = models.ObjectIdField()
-    site = models.EmbeddedField(model_container=Site)
+    site = models.CharField(max_length=255)
     rank = models.FloatField(default=1.0)
     objects = models.DjongoManager()
 
 
 class SiteDetail(models.Model):
     _id=models.ObjectIdField()
-    site = models.EmbeddedField(model_container=Site)
+    url = models.CharField(max_length=255)
     title = models.CharField(max_length=255, default='')
     desc = models.CharField(max_length=400, default='')
-    domain = models.CharField(max_length=20, default='.com')
     display = models.BooleanField(default=True)
     visit_count = models.IntegerField(default=0)
-    priority = models.FloatField(default=1.0000)
-    indexed = models.BooleanField(default=False)
     words_links = models.CharField(max_length=255, default='-')
     icon = models.CharField(max_length=255, default="/favicon.ico")
     objects=models.DjongoManager()
@@ -47,7 +44,7 @@ class SiteDetail(models.Model):
 
 class RankHandler(models.Model):
     _id = models.ObjectIdField()
-    url = models.CharField(max_length=255)
+    site = models.CharField(max_length=255)
     links = models.ArrayReferenceField(to=SiteDetail, on_delete=models.CASCADE)
     objects = models.DjongoManager()
 
