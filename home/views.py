@@ -1,7 +1,7 @@
 from django.shortcuts import render
 import json
 from html import unescape
-from home.models import Index,feedback
+from home.models import feedback
 from django.http import HttpResponse
 from django.views.generic import ListView
 import pymongo as p

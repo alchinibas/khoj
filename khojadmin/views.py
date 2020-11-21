@@ -1,7 +1,7 @@
 from django.shortcuts import render, get_object_or_404, redirect, HttpResponseRedirect
 from django.http import HttpResponse,Http404
 from .includes import crawler
-from home.models import uncrawled, sites, indexing, feedback
+from home.models import uncrawled,feedback
 import os
 import json
 from django.contrib.auth.decorators import login_required
@@ -88,15 +88,7 @@ def adminAction(request):
         if request.POST['action'] == 'indexingurl':
             url=request.POST['url']
             if url:
-                if len(sites.objects.filter(url=url)):
-                    return HttpResponse("Engine already recognizes your URL")
-                elif len(uncrawled.objects.filter(url=url))>0:
-                    return HttpResponse("Already Aproved. Waiting for Indexing")
-                elif len(PendingUrl.objects.filter(url=url))>0:
-                    return HttpResponse("Already waiting for Aproval")
-                else:
-                    PendingUrl(url = url).save()
-                    return HttpResponse("Sent for Aproval")
+                
 
                 return HttpResponse("Internal Error")
             else:
@@ -113,11 +105,11 @@ def crawl(request):
 def home(request):
     data = {
         "data":{
-            "feedback":len(feedback.objects.all()),
-            "sites":len(sites.objects.all()),
-            "uncrawled":len(uncrawled.objects.all()),
+            "feedback":'',
+            "sites":'',
+            "uncrawled":'',
             "users":2343,
-            "request":len(PendingUrl.objects.all()),
+            "request":'',
         }
         
     }
@@ -179,36 +171,4 @@ def settings(request):
 
 @login_required
 def url_filter(request):
-    chk=0
-    crawled_data = sites.objects.values_list('url')
-    crawled = [url[0] for url in crawled_data]
-    print("Removing duplicates from uncrawled")
-    for items in crawled:
-        try:
-            q3=uncrawled.objects.filter(url=items)
-            sit=q3[0].url
-            q4=q3.delete()
-            chk=1
-            if q4:
-                print(sit)
-            else:
-                print("Failed removing url:",items)
-        except sites.DoesNotExist:
-            print("New URL : ", items)
-        except:
-            pass
-    print("Removing false url")
-    x = 'URL duplicates removed'
-    try:
-        uncrawled.objects.filter(url__startswith="False URL:").delete()
-    except:
-        x = "No False URL Exists"
-    if chk and chk== 1:
-        print("Checking Again:::")
-        url_filter(request)
-    else:
-        print("Finished Checking")
-        if 'afc' in request.GET:
-            return HttpResponse(x)
-        else:
-            return x
+    return HttpResponse("Filtering body")

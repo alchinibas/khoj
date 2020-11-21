@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import search_text, feedback, uncrawled
+from .models import feedback, uncrawled
 
 
 
