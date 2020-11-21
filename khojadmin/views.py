@@ -1,8 +1,7 @@
-from django.shortcuts import render, get_object_or_404, redirect
-from django.http import HttpResponse
+from django.shortcuts import render, get_object_or_404, redirect, HttpResponseRedirect
+from django.http import HttpResponse,Http404
 from .includes import crawler
 from home.models import uncrawled, sites, indexing, feedback
-from khojadmin.models import Feedback, PendingUrl
 import os
 import json
 from django.contrib.auth.decorators import login_required
@@ -11,38 +10,43 @@ from django.views.generic import (
     ListView,
     DetailView,
 )
-    
+import pymongo as p
 from django.core.exceptions import PermissionDenied
 from django.contrib import messages
+from bson.objectid import ObjectId
+
+con = p.MongoClient("localhost", 27017)
+db = con.khoj
+searchText = db.home_searchtext
+Index = db.home_index
+key = db.home_keyextract
+fb = db.home_feedback
+unc = db.home_uncrawled
 
 @login_required
 def adminAction(request):
     if request.method =='GET':
         if 'delete' in request.GET:
-            pk = request.GET['delete'];
-            obj = get_object_or_404(feedback, pk=pk)
-            obj.delete()
-            messages.success(request,"Deleted Successfully!!!")
+            pk = ObjectId(request.GET['delete'])
+            obj = fb.delete_one({"_id":pk})
+            if obj:
+                messages.success(request,"Deleted Successfully!!!")
+            else:
+                raise Http404("Feedback Not Found")
             return redirect('khojadmin:feedback')
         elif 'check' in request.GET:
             pk = request.GET['check']
-            obj=get_object_or_404(feedback,pk=pk)
-            obj.read = True
-            obj.save()
-            messages.success(request,"Marked Read Successfully!!!")
+            obj=fb.update({"_id":ObjectId(pk)},{"$set":{"ack":True}})
+            if obj:
+                messages.success(request,"Marked Read Successfully!!!")
+            else:
+                messages.error(request,f"Failed to delete id :{pk}")
             return redirect('khojadmin:feedback')
         elif 'readSelected' in request.GET:
             data = request.GET['deleteSelected']
             if data:
                 ids =json.loads(data)
-                for pk in ids:
-                    try:
-                        obj = feedback.objects.get(pk = pk)
-                        obj.read =  True
-                        obj.save()
-                    except (feedback.DoesNotExist,KeyError):
-                        message.warning(f'Someting went wrong with data {pk}')
-
+                    #django sqlite command removed
                 messages.success(request,"Selected messages deleted Successfully!!!")
             else:
                 messages.warning(request,"No data selected")
@@ -53,27 +57,29 @@ def adminAction(request):
             data = request.GET['readSelected']
             if data:
                 ids=json.loads(data)
-                for pk in ids:
-                    try:
-                        obj = feedback.objects.get(pk = pk).delete()
-                    except (feedback.DoesNotExist,KeyError):
-                        message.warning(f'Someting went wrong with data {pk}')
+
+                #django sqlite command removed
                 messages.success(request,"Selected messages marked read Successfully!!!")
             else:
                 messages.warning(request,"No data selected")
 
             return redirect('khojadmin:feedback')
         elif 'aproveURL' in request.GET:
-            try:
-                getid = request.GET['aproveURL']
-                obj = PendingUrl.objects.get(id = int(getid))
-                u1 = uncrawled(url=obj.url)
-                u1.save()
-                obj.delete()
-                message.success(f"Approved id {getid}")
-            except Exception as e:
-                messages.warning(request,f'Error: {e}')
-                return redirect('khojadmin:urlrequests')
+            url = request.GET['aproveURL']
+            obj = unc.update({"url":url},{"$set":{"ack":True}})
+            if obj:
+                messages.success(request,f"Approved {url}")
+            else:
+                messages.error(request,f"Failed to update {url}")
+            return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+        elif 'rejectURL' in request.GET:
+            url = request.GET['rejectURL']
+            obj = unc.delete_many({"url":url})
+            if obj:
+                messages.success(request,f"URL Removed {url}")
+            else:
+                messages.error(request,f"Failed to update {url}")
+            return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
         else:
             raise PermissionDenied("403 Forbidden action access")
         return render(request, 'khojadmin/pendingurl.html')
@@ -127,19 +133,15 @@ class LoginRequired:
         return handler(request, *args, **kwargs)
 
 class UrlRequests(LoginRequired,ListView):
-    model = PendingUrl
+    # model = uncrawled
     context_object_name = 'data'
-    ordering ='-requestDate'
-    paginate_by = 2
+    # ordering ='-requestDate'
+    paginate_by = 20
     template_name='khojadmin/pendingurl.html'
 
-    @method_decorator(login_required)
-    def dispatch(self, request, *args, **kwargs):
-        if request.method.lower() in self.http_method_names:
-            handler = getattr(self, request.method.lower(), self.http_method_not_allowed)
-        else:
-            handler = self.http_method_not_allowed
-        return handler(request, *args, **kwargs)
+    def get_queryset(self):
+        urls = unc.find({"ack":False})
+        return [i["url"] for i in urls]
 
 @login_required
 def dbms(request):
@@ -152,11 +154,15 @@ class FeedbackView(LoginRequired, ListView):
     paginate_by =5
 
     def get_queryset(self):
-        return feedback.objects.filter(read=False).order_by('-report_date')
+        dd = fb.find({})
+        return [i for i in dd]
 
-class FeedbackDetail(LoginRequired,DetailView):
-    model = feedback
-    template_name='khojadmin/feedbackdetail.html'
+
+@login_required
+def FeedbackDetail(request,pk):
+    if request.method == 'GET':
+        det = fb.find_one(ObjectId(pk))
+        return render(request,'khojadmin/feedbackdetail.html',context = {"object":det})
 
 @login_required
 def dataManagement(request):
@@ -170,164 +176,6 @@ def report(request):
 def settings(request):
     return render(request, 'khojadmin/settings.html')
 
-@login_required
-def index(request):
-    if os.path.exists('khoj_contents/content1'):
-        print("Path Exists")
-    try:
-        q1 = sites.objects.filter(indexed=False)
-        length = len(q1)
-        print(str(length) + " files left to index")
-        for items in q1:
-            url = items.url
-            f_name = items.reference_dir + '/' + items.file_name
-            if os.path.exists(f_name):
-                print("File Exists :" + f_name)
-            else:
-                print("File doesnt exists :" + f_name)
-            try:
-                with open(f_name, 'r', encoding='utf-8') as file:
-                    contents = file.read().strip().split()
-                for key in contents:
-                    key = key.lower()
-                    q1 = indexing.objects.filter(key=key)
-                    new_id = [{"id": items.pk, "count": 0}]
-                    if len(q1) == 0:
-                        reference_id = json.dumps(new_id, ensure_ascii=False)
-                        print("Indexing to :ref_id")
-                        q2 = indexing(key=key, site_id=reference_id)
-                        if not q2:
-                            print("failed")
-                        q2.save()
-                    else:
-                        index_id = q1[0].id
-                        c = 0
-
-                        ids = q1[0].site_id
-                        try:
-                            id_list = json.loads(ids)
-                        except Exception:
-                            raise Exception("failed to parse data")
-                        for item in id_list:
-                            if item['id'] != items.pk:
-                                c = 0
-                            else:
-                                c = 1
-                                break
-                        if c == 0:
-                            id_list.append({'id': items.pk, 'count': 0})
-                        else:
-                            item['count'] += 1
-                        d_id = json.dumps(id_list, ensure_ascii=False)
-                        indexing.objects.filter(id=index_id).update(site_id=d_id)
-                # If indexing succeeds
-                print("Indexed Complete: Removing File")
-                ref_dir = items.reference_dir[14:]
-                os.remove(f_name)
-                print(ref_dir)
-                sites.objects.filter(url=url).update(indexed=True)
-            except FileNotFoundError:
-                print("Failed to open File: " + f_name)
-    except Exception as e:
-        print("Parsing Error")
-    return HttpResponse("Process Complete")
-
-
-@login_required
-def data_handler(request, action):
-    if request.method == 'GET':
-        if action == 'save':
-            if os.path.exists('tmp_files/ses.json'):
-                with open('tmp_files/ses.json', 'r', encoding='utf-8') as ses:
-                    contents = json.load(ses, encoding='utf-8')
-                    for items in contents:
-                        links = items['links']
-                        for url in links:
-                            check = uncrawled.objects.filter(url=url)
-                            if len(check) == 0 and 'False URL' not in url:
-                                q = uncrawled(url=url)
-                                q.save()
-                os.remove('tmp_files/ses.json')
-            if os.path.exists('tmp_files/data.json'):
-                if os.stat("tmp_files/data.json").st_size > 2:
-                    with open('tmp_files/data.json', encoding='utf-8') as data:
-                        content = json.load(data)
-                        for items in content:
-                            dup = sites.objects.filter(url=items['url'])
-                            q = []
-                            if len(dup) == 0:
-                                print("Duplicate url found 0")
-
-                                q = sites(url=items['url'], title=items['title'], desc=items['description'][:255],
-                                          display=True)
-                                q.save()
-                            if q:
-                                current=q
-                            else:
-                                current=dup[0]
-                            if current:
-                                contents = items['description'].lower().split()
-
-                                def index_core(target, priority):
-                                    for key in target:
-                                        q1 = indexing.objects.filter(key=key)
-                                        new_id = [{'id': current.pk, 'p': priority, 'count': 0}]
-                                        if len(q1) == 0:
-                                            reference_id = json.dumps(new_id, ensure_ascii=False)
-                                            q2 = indexing(key=key, site_id=reference_id)
-                                            if not q2:
-                                                print("failed")
-                                            q2.save()
-                                        else:
-                                            index_id = q1[0].id
-                                            ids = []
-                                            c = 0
-
-                                            ids = q1[0].site_id
-                                            try:
-                                                id_list = json.loads(ids)
-                                            except:
-                                                raise Exception("failed to parse data")
-                                            for item in id_list:
-                                                if item['id'] != current.pk:
-                                                    c = 0
-                                                else:
-                                                    c = 1
-                                                    break
-                                            if c == 0:
-                                                id_list.append({'id': current.pk,"p":priority, 'count': 0})
-                                            else:
-                                                item['count'] += 1
-                                            d_id = json.dumps(id_list, ensure_ascii=False)
-                                            q2 = indexing.objects.filter(id=index_id).update(site_id=d_id)
-                                index_core(contents,0)
-                                contents=items['title'].lower().split()
-                                index_core(contents,1)
-                                current.indexed=True
-                                current.save()
-                os.remove('tmp_files/data.json')
-        elif action == "indexfilter":
-            sids=[]
-            iids=[]
-            print("Determining unwanted indexes")
-            allsites=sites.objects.all()
-            for objects in allsites:
-                sids.append(objects.pk)
-            for objects in indexing.objects.all():
-                keys = objects.site_id
-                keygroup=json.loads(keys, encoding = 'utf-8')
-                for items in keygroup:
-                    if(items['id'] not in sids):
-                        iids.append(items['id'])
-                        try:
-                            keygroup.remove(items)
-                            indexing.objects.filter(key = objects.key).update(site_id = json.dumps(keygroup, ensure_ascii= False))
-                        except Exception as e:
-                            print(e)
-
-                iids = list(set(iids))
-            print("Unwanted ids : ", iids)
-    return HttpResponse("Completed")
 
 @login_required
 def url_filter(request):

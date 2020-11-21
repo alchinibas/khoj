@@ -2,20 +2,6 @@ from djongo import models
 from django.utils import timezone
 
 
-class sites(models.Model):
-    url = models.TextField(default='')
-    title = models.CharField(max_length=255, default='')
-    desc = models.CharField(max_length=400, default='')
-    domain = models.CharField(max_length=20, default='.com')
-    display = models.BooleanField(default=True)
-    visit_count = models.IntegerField(default=0)
-
-    priority = models.FloatField(default=1.0000)
-    indexed = models.BooleanField(default=False)
-    words_links = models.CharField(max_length=255, default='')
-    icon = models.CharField(max_length=255, default="/favicon.ico")
-
-
 class Site(models.Model):
     url = models.TextField()
 
@@ -95,13 +81,6 @@ class Index(models.Model):
     objects = models.DjongoManager()
 
 
-class indexing(models.Model):
-    key = models.CharField(max_length=255)
-    site_id = models.TextField()
-
-    def __str__(self):
-        return self.key
-
 class feedback(models.Model):
 
     name = models.CharField(max_length=50)
@@ -118,24 +97,6 @@ class feedback(models.Model):
             return self.desc
         else:
             return f'{self.desc[:20]}...'
-
-
-class search_text(models.Model):
-    search_text = models.CharField(max_length=255)
-    visit_couont = models.IntegerField(default=0)
-    priority = models.FloatField(default=1.0)
-
-    def __str__(self):
-        return self.search_text
-
-class SearchText(models.Model):
-    search_text = models.CharField(max_length=255)
-    visit_couont = models.IntegerField(default=0)
-    priority = models.FloatField(default=1.0)
-
-    def __str__(self):
-        return self.search_text
-
 
 class SearchText(models.Model):
     _id = models.ObjectIdField()

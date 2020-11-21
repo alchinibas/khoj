@@ -8,13 +8,19 @@ Database - KhojAdmin
 <div class="row">
 {% endblock %}
 {% block body %}
+{% if messages %}
+		{% for message in messages %}
+			<div class="alert  alert-sm alert-{{message.tags}}" onload = "setTimeout(function(){this.style.display='none';console.log('here')},4000)">
+				{{message}}
+			</div>
+		{% endfor %}
+	{% endif %}
 <table class="table table-hover">
   <thead>
     <tr>
       <th scope="col">0</th>
       <th scope="col">URL</th>
-        <th scope="col">Date</th>
-      <th scope="col">Aprove</th>
+      <th scope="col">Action</th>
     </tr>
   </thead>
     {% if data %}
@@ -22,9 +28,9 @@ Database - KhojAdmin
   <tbody>
     <tr>
       <th scope="row">{{forloop.counter}}</th>
-        <td><a href="{{items.url}}">{{items.url}}</a></td>
+        <td><a href="{{items}}">{{items}}</a></td>
       <td>{{items.requestDate}}</td>
-      <td><a class="btn" href="{% url 'khojadmin:adminaction' %}?aproveURL={{items.pk}}">Aprove</a></td>
+      <td><a class="btn" href="{% url 'khojadmin:adminaction' %}?aproveURL={{items}}"><i class="fa fa-check"></i></a><a class="btn" href="{% url 'khojadmin:adminaction' %}?rejectURL={{items}}"><i class="fa fa-times"></i></a></td>
     </tr>
   </tbody>
     {% endfor %}

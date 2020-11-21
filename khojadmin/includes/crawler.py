@@ -40,7 +40,7 @@ def Uncrawled(links):
     check = uncrawled.find({"url":{"$in":links}})
     if check:
         av = [i["url"] for i in check]
-    tmp=[{"url":i,"ack":False} for i in links if i not in av and 'False URL' not in i]
+    tmp=[{"url":i,"ack":False} for i in links if i not in av and 'FalseURL' not in i]
     # for url in links:
     #     if 'False URL' not in url:
     #         check = uncrawled.find({'url': url})
