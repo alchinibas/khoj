@@ -136,7 +136,7 @@ def feedBack(request):
             q5= fb.insert_one({"name":name,"email":email,"desc":desc,"report_date":timezone.now(),"ack":False})
             if not q5:
                 print("Failed TO save")
-            # print(name,email,desc)
+            
 
         except (KeyError,ValueError):
             return HttpResponse("False")
@@ -148,3 +148,5 @@ def feedBack(request):
         return "Wrong RequestMethod"
 
 
+def aboutus(request):
+    return render(request,'home/about_us.html')
