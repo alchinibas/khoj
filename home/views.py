@@ -133,7 +133,7 @@ def feedBack(request):
             name=request.POST['name']
             email=request.POST['email']
             desc=request.POST['desc']
-            q5= fb.insert_one({"name":name,"email":email,"desc":desc,"report_date":timezone.now()})
+            q5= fb.insert_one({"name":name,"email":email,"desc":desc,"report_date":timezone.now(),"ack":False})
             if not q5:
                 print("Failed TO save")
             # print(name,email,desc)

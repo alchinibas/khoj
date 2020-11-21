@@ -1,0 +1,45 @@
+{% extends 'khojadmin/header.html' %}
+{% block title %}
+Database - KhojAdmin
+{% endblock %}
+{% block actionmain %}
+<div class="d-sm-flex justify-content-between align-items-center mb-4">
+    <h3 class="text-dark mb-0">DMS Collections</h3><a class="btn btn-primary btn-sm d-none d-sm-inline-block" role="button" href="/admin/" target="_blank"><i class="fas fa-book fa-sm text-white-50"></i>&nbsp;Manual DB</a></div>
+<div class="row">
+{% endblock %}
+{% block body %}
+{% if messages %}
+{% for message in messages %}
+    <div class="alert  alert-sm alert-{{message.tags}}">
+        {{message}}
+    </div>
+{% endfor %}
+{% endif %}
+{% if dbs %}
+<table class="table table-hover">
+    <thead>
+        <tr>
+            <th scope="col">0</th><th scope="col">Collections</th><th scope="col">Total</th><th scope="col">Action</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for db in dbs %}
+        <tr>
+            <td scope="row">{{forloop.counter}}</td>
+            <td scope="row">{{db.name}}</td>
+            <td scope="row">{{db.count}}</td>
+            <td scope="row"><a href = "{% url 'khojadmin:collections' %}?truncate={{db.name}}">Truncate</a></td>
+        </tr>
+        {% endfor %}
+    </tbody>
+   
+</table>
+    {% endif %}
+{% endblock %}
+{% block activedms %}
+<li class="nav-item" role="presentation"><a class="nav-link active " href="{% url 'khojadmin:dms' %}">
+    <i class="fas fa-laptop-code"></i><span>DMS
+        <a class="nav-link active " href="{% url 'khojadmin:collections' %}">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<i class="fa fa-angle-right"></i>Collections</span></a></span></a>
+</li>
+{% endblock %}
+

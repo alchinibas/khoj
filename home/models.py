@@ -82,12 +82,13 @@ class Index(models.Model):
 
 
 class feedback(models.Model):
-
+    _id = models.ObjectIdField()
     name = models.CharField(max_length=50)
     email = models.EmailField(max_length=50)
     desc = models.TextField()
     report_date = models.DateTimeField(auto_now_add=True)
     read = models.BooleanField(default=False)
+    object = models.DjongoManager()
 
     def __str__(self):
         return self.name + " : " + self.email
