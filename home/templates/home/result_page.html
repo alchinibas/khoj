@@ -72,7 +72,7 @@
 				<div class="row justify-content-between">
 					<div class="col-sm-7 row">
 						<div class="input-group col-12">
-							<input type="text" class="form-control" value="{% if search_text %}{{search_text}}{%endif%}" id= "textInput" name="search-text" placeholder="KHOJ Search" autocomplete="off">
+							<input type="text" class="form-control" value="{% if searchtext %}{{searchtext}}{%endif%}" id= "textInput" name="search-text" placeholder="KHOJ Search" autocomplete="off">
 							<div class="input-group-prepend">
 								<button type="submit" class=" bg-white input-group-text"><img src="{% static 'home/images/khoj_icon.ico' %}" width="20px" ></button>
 							</div>
@@ -121,7 +121,7 @@
 				</div>
 			</div>
 			<div class="recommend-area bg bglight1 col-sm-4 ">
-					Total pages if result :
+					Total pages if result :{{search}}{{searchtext}}
 			</div>
 			<div class="col-sm-7" style="display:flex; margin:0;justify-content:center; align-items:center; text-align:center;">
 				<div class="col" id = "pager">
@@ -207,7 +207,6 @@
 	var fbtn =document.getElementById("fsend");
 	fbtn.addEventListener("touchend",fsend,false);
 	fbtn.onclick = fsend;
-
 	function fsend(){
 	ff=0;
 	function csrfSafeMethod(method) {
@@ -259,11 +258,13 @@
 		});
 	}
 	{% if search %}
-	var ids={{search}}.toString()
 	var page_no=1;
+	var ids = JSON.stringify("{{search}}")
+	console.log(ids,typeof(ids))
+	var stext = "{{searchtext}}"
 	$.ajax({
 		url:"{%  url 'home:load-data1' %}",
-		data:{"page":{% if not page %}{{1}} {% else %}{{page}}{% endif%}, "ids":ids},
+		data:{"ids":"{{search}}","searchtext":stext},
 		method:"GET",
 		success:function(result){
 			document.getElementById('load-data1').innerHTML=result;
@@ -327,7 +328,6 @@
 
 
 </script>
-<script type="text/javascript" src="{% static 'home/jquery/jquery.min.js' %}"></script>
 <script type="text/javascript" src="{% static 'home/bootstrap431/js/bootstrap.min.js' %}"></script>
-<script type="text/javascript" src="{% static 'home/js/my_js.js' %}"></script>
+<script type="text/javascript" src="{% static 'home/js/my_js.js' %}"></script> 
 </html>
