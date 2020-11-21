@@ -30,8 +30,8 @@
 	border-bottom:1px solid #aaa;
 }
 @keyframes dark1{from{background-color:initial;}to{background-color:#1c232d;}}
-@keyframes dark2{from{background-color:initial;}to{background-color:#313e4a;}}
-@keyframes dark3{from{background-color:initial;}to{background-color:#3b4155;}}
+@keyframes dark2{from{background-color:initial;}to{background-color:#aaaaaa;}}
+@keyframes dark3{from{background-color:initial;}to{background-color:#d7d7d7;}}
 @keyframes dark4{from{background-color:initial;}to{background-color:#666;}}
 @keyframes dark5{from{background-color:initial;}to{background-color:#aaa;}}
 @keyframes light1{from{background-color:initial;}to{background-color:#eee;}}
