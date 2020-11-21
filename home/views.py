@@ -145,10 +145,7 @@ def feedBack(request):
             return HttpResponse("True")
 
     else:
-<<<<<<< HEAD
         print("i am out")
-=======
         return "Wrong RequestMethod"
->>>>>>> feee96251416f77e6a65def43430c385763e13e5
 
 
