@@ -28,7 +28,7 @@ def loadRec(request):
                 return HttpResponse(data)
         except :
             return HttpResponse()
-        dat = searchText.find({"$text":{"$search":text}})
+        dat = searchText.find({"$text":{"$search":text}}).limit(10)
         # dat=search_text.objects.filter(search_text__contains = text).order_by('priority')
         if dat:
             for val in dat:
