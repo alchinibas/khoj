@@ -146,6 +146,8 @@ def Sites(items,lang,urls):
         def index_core(target, priority,ktype):
 
             def key_cleaner(key):
+                if items['lang']=='ne':
+                    return key
                 key = key.lower()
                 if items['lang']=='en':
                     if re.match(r'^[a-z]+',key):
@@ -156,11 +158,11 @@ def Sites(items,lang,urls):
 
             def stop_word(word):
                 words = ["in","the","is","was","were",
-                "am","are","a","to","has","have","had"]
+                "am","are","a","to","has","have","had","it"]
                 if word in words:# include number  but not \w
                     return 1
                 else:
-                    if len(word)>2:
+                    if len(word)>1:
                         if word.isalnum():
                             return 0
                     elif  word.isalpha():
@@ -294,7 +296,7 @@ def crawl(url):
             try:
                 page_lang=content.find('html')['lang']
             except:
-                page_lang='en'
+                page_lang='defalt'
 
             links = content.find_all('a', href=True)
             try:

@@ -96,11 +96,13 @@ class ResultView(ListView):
         '''Complex pymongo data search and match'''
         data = Index.aggregate([
             {"$match":{"$text":{"$search":searchtext}}},
+            {"$addFields":{"score":{"$meta":"textScore"}}},
             {"$unwind":"$sites"},
-            {"$group":{"_id":"$sites","count":{"$sum":1}}},
+            {"$group":{"_id":"$sites","count":{"$sum":1},"score":{"$sum":"$score"}}},
             {"$lookup":{"from":"home_siterank","localField":"_id","foreignField":"site","as":"rank"}},
-            {"$project":{"count":1,"rank":{"$first":"$rank.rank"}}},
-            {"$sort":{"rank":-1,"count":-1}}])
+            {"$project":{"count":"$count","score":"$score","ranke":{"$first":"$rank.rank"}}},
+            {"$project":{"count":"$count","ranke":"$ranke","score":"$score","trank":{"$add":["$count","$ranke","$score"]}}},
+            {"$sort":{"trank":-1}}])
         return [str(i["_id"]) for i in data]
 
     '''Adding search text in context'''
@@ -110,21 +112,6 @@ class ResultView(ListView):
         context['searchtext'] = searchtext
         # print(len(context),context)
         return context
-
-
-
-def add_site(request):
-    with open("home/templates/home/test_file.json", "w") as j:
-        cont = {
-            "title": "Father",
-            "summary": "A good man",
-            "family": ["wife", "children"]
-        }
-        store = json.dumps(cont, indent=2)
-        if (j.write(store)):
-            return HttpResponse("Successful")
-        else:
-            return HttpResponse("Failed")
 
 
 def feedBack(request):

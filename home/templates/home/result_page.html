@@ -33,7 +33,7 @@
 	        </form>
 	      </div>
 	      <div class="modal-footer">
-	        <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+	        <button type="button" class="btn btn-secondary" data-dismiss="modal" id="icloser">Cancel</button>
 	        <button type="button" class="btn btn-primary" data-target ="indexer" id="indexbtn">Send</button>
 	      </div>
 	    </div>
@@ -46,7 +46,7 @@
 			</div>
 			<div class=" row justify-content-between flex-nowrap">
 			<form method="GET" action="{% url 'home:result' %}" id = "search-form" class="col-sm-7">
-				<div class="row align-items-end">
+				<div class="row flex-column">
 					<div class="col-sm-12 row">
 						<div class="input-group col-12">
 							<input type="text" class="form-control" value="{% if searchtext %}{{searchtext}}{%endif%}" id= "textInput" name="search-text" placeholder="KHOJ Search" autocomplete="off">
@@ -56,19 +56,21 @@
 						</div>
 						
 					  </div>
-					<div class="col-12" id="recommend1" style="position:absolute;z-index:2010;"></div>
+					  <div class="" style="position:relative;">
+						<div class="col-12" id="recommend1" style="position:absolute;z-index:2010;"></div>
+					</div>
 				</div>
 			</form>
-		      <div class=" option-group text-right" data-target="dropfn" style="border-bottom:1px solid #555">
-		      	<div class="btn btn-outline-secondary" style="border-bottom:0px;">O1</div>
-		      	<div class="dropdown-menu hide" id="dropfn">
-		      		<ul class="list-unstyled">
-		      			<li class="btn btn-sm btn-light d-block text-left" data-target="#indexmodal" data-toggle="modal">Index my URL</li>
-		      			<li class="btn btn-sm btn-light d-block text-left " id="bgmode" data-target="night">Night Mode</li>
+				<div class=" option-group text-right" data-target="dropfn" style="border-bottom:1px solid #555">
+					<div class="btn btn-outline-secondary" style="border-bottom:0px;">O1</div>
+					<div class="dropdown-menu hide" id="dropfn">
+						<ul class="list-unstyled">
+							<li class="btn btn-sm btn-light d-block text-left" data-target="#indexmodal" data-toggle="modal">Index my URL</li>
+							<li class="btn btn-sm btn-light d-block text-left " id="bgmode" data-target="night">Night Mode</li>
 
-		      			<li class="btn btn-sm btn-light d-block text-left"><a href="{% url 'home:aboutus' %}">About Us</a></li>
-		      		</ul>
-		      	</div>
+							<li class="btn btn-sm btn-light d-block text-left"><a href="{% url 'home:aboutus' %}">About Us</a></li>
+						</ul>
+					</div>
 		      </div>
 		    </div>
 		</div>
@@ -292,7 +294,13 @@
 			url:"{% url 'khojadmin:adminaction' %}",
 			success:function(res){
 				const messagebox = document.getElementById("messagebox");
-				messagebox.innerHTML = res;
+				if (res == "True"){
+					messagebox.innerHTML = "URL index request sent";
+				}
+				else{
+					messagebox.innerHTML = res;
+				}
+				document.getElementById("icloser").click()
 				messagebox.style.display = 'block';
 				messagebox.classList.add('text-info');
 				messagebox.classList.remove('d-none');

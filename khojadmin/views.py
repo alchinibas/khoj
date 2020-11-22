@@ -22,6 +22,7 @@ fb = db.home_feedback
 unc = db.home_uncrawled
 site = db.home_sitedetail
 user = db.auth_user
+rank = db.home_siterank
 @login_required
 def adminAction(request):
     if request.method =='GET':
@@ -65,9 +66,13 @@ def adminAction(request):
         if request.POST['action'] == 'indexingurl':
             url=request.POST['url']
             if url:
-                
-
-                return HttpResponse("Internal Error")
+                q2 = rank.find_one({"url":{"$regex":url+".*"}})
+                if not q2:
+                    q1 = unc.find_one({"url":{"$regex":url+".*"}})
+                    if not q1:
+                        unc.insert_one({"url":url,"ack":False}) 
+                        return HttpResponse("True")
+                return HttpResponse("URL already waiting for aproval")
             else:
                 return HttpResponse("Failure")
         return HttpResponse("1")
