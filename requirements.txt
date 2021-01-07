@@ -7,7 +7,7 @@ Django==3.0.7
 django-crispy==1.8.1
 django-crispy-forms==1.9.2
 idna==2.9
-lxml==4.5.1
+lxml==4.6.2
 lxmlHtml==0.0.2
 Pillow==7.1.2
 psycopg2==2.8.5
