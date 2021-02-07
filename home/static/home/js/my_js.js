@@ -1,8 +1,52 @@
-//feedback form-----------------
+//cookie 
 
+var cookies = document.cookie;
+function getCookie(cname) {
+	var decodedCookie = decodeURIComponent(document.cookie);
+	var ca = decodedCookie.split(';');
+	var key = ''
+	var val = ''
+	for(var i = 0; i <ca.length; i++) {
+		tmp= ca[i].split("=");
+		key = tmp[0]
+		value = tmp[1]
+		console.log(tmp)
+		if (key == " bgmode"){
+			return value
+		}
+	}
+	return "";
+}
+function bgst(){
+	console.log("Here")
+	var bgmode = getCookie("bgmode");
+	console.log(bgmode)
+	if (bgmode==""){
+		bgmode = "day";
+		setCookie("day")
+	}
+	else{
+		var cmod = document.getElementById("bgmode");
+		if (bgmode == "night"){
+			nightmode()
+			cmod.setAttribute("data-target","day")
+			cmod.innerHTML="Day Mode";
+		}
+		else{
+			daymode()
+			cmod.setAttribute("data-target","night")
+			cmod.innerHTML="Night Mode";
+		}
+	}
 
-//feedback form ends -----------------
+}
 
+function setCookie(mode){
+	var d = new Date();
+	d.setTime(d.getTime() + (365*24*60*60*1000));
+	var expires = "expires="+ d.toUTCString();
+	document.cookie ="bgmode="+mode+";"+expires;
+}
 
 // -----------consoleArea-------------------
 var staticrec = 0;
@@ -31,11 +75,6 @@ function hiderecommend(){
 //-------------consoleArea-End----------------
 var staticClickVar=0;
 var staticKeyVar;
-document.getElementById("bgimage").addEventListener("input",setbgcookie,false)
-function setbgcookie(){
-	document.cookie="name=background; file=khoj_logo.png; expire=16 Apr 2020 12:00:00 UTC; path=/";
-	document.cookie="file=khoj_logo.png; expires=16 Apr 2020 12:00:00 UTC; path=/";
-}
 window.onclick=function(){
 	staticClickVar+=1;
 	if(staticClickVar>2){
@@ -63,32 +102,39 @@ for(var tmp2=0;tmp2<dropDowns.length;tmp2++){
 	staticClickVar=dropOption[tmp2].addEventListener("touchend",toggleMenu,false);
 	staticClickVar=dropOption[tmp2].onfocusout=hideDrop;
 }
+var body=document.body;
+function nightmode(){
+	body.classList.remove("bglight1");
+	body.classList.add("bgdark2");
+	itmHeaderContainer.classList.add("bgdark3");
+	itmResultArea.classList.add("bglight2");
+	itmRecommendArea.classList.add("bglight2");
+	itmResultArea.classList.remove("bglight1");
+	itmHeaderContainer.classList.remove("bglight3");
+	itmRecommendArea.classList.remove("bglight1");
+}
+function daymode(){
+	body.classList.add("bglight1");
+	itmResultArea.classList.add("bglight1");
+	itmHeaderContainer.classList.add("bglight3");
+	itmRecommendArea.classList.add("bglight1");
+	itmHeaderContainer.classList.remove("bgdark3");
+	itmResultArea.classList.remove("bglight2");
+	itmRecommendArea.classList.remove("bglight2");
+	body.classList.remove("bgdark2");
+}
 function changebg(){
-	var body=document.body;
 	if(this.getAttribute("data-target")=="night"){
-		body.classList.remove("bglight1");
-		body.classList.add("bgdark2");
-		itmHeaderContainer.classList.add("bgdark3");
-		itmResultArea.classList.add("bglight2");
-		itmRecommendArea.classList.add("bglight2");
-		itmResultArea.classList.remove("bglight1");
-		itmHeaderContainer.classList.remove("bglight3");
-		itmRecommendArea.classList.remove("bglight1");
-
+		setCookie("night")
+		
+		nightmode()
 		this.setAttribute("data-target","day")
 		this.innerHTML="Day Mode";
 
 	}
 	else{
-		body.classList.add("bglight1");
-		itmResultArea.classList.add("bglight1");
-		itmHeaderContainer.classList.add("bglight3");
-		itmRecommendArea.classList.add("bglight1");
-		itmHeaderContainer.classList.remove("bgdark3");
-		itmResultArea.classList.remove("bglight2");
-		itmRecommendArea.classList.remove("bglight2");
-		body.classList.remove("bgdark2");
-
+		setCookie("day")
+		daymode()
 		this.setAttribute("data-target","night");
 		this.innerHTML="Night Mode";
 	}
@@ -179,6 +225,7 @@ function resize(){
 	}
 }
 function initializer(){
+		bgst();
 		resize();
 		var deviceHeights=document.getElementsByClassName("device-height");
 		var i=0;

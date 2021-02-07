@@ -1,9 +1,19 @@
 from django.shortcuts import render
-import json, math
-from home.models import sites, indexing,search_text,feedback
+import json
+from html import unescape
+from home.models import feedback
 from django.http import HttpResponse
 from django.views.generic import ListView
+import pymongo as p
+from bson.objectid import ObjectId
+from django.utils import timezone
 
+con = p.MongoClient("localhost", 27017)
+db = con.khoj
+searchText = db.home_searchtext
+Index = db.home_index
+key = db.home_keyextract
+fb = db.home_feedback
 
 def index(request):
     return render(request, "home/home_page.html")
@@ -18,9 +28,11 @@ def loadRec(request):
                 return HttpResponse(data)
         except :
             return HttpResponse()
-        dat=search_text.objects.filter(search_text__contains = text).order_by('priority')
-        for val in dat:
-            data.append(val.search_text)
+        dat = searchText.find({"$text":{"$search":text}}).limit(10)
+        # dat=search_text.objects.filter(search_text__contains = text).order_by('priority')
+        if dat:
+            for val in dat:
+                data.append(val["search_text"])
 
         return HttpResponse(', '.join(data))
 
@@ -28,107 +40,78 @@ def loadRec(request):
 def loadData(request):
     result=[]
     if request.method == 'GET':
-        ids = [int(value) for value in request.GET['ids'].split(',')]
-        for val in ids:
-            q1= sites.objects.filter(pk=val)
-            if(q1):
-                result.append({'url':q1[0].url,'title':q1[0].title,'desc':q1[0].desc,'icon':q1[0].icon})
-        comp=json.dumps(result)
+        result =[ObjectId(i) for i in json.loads(unescape(request.GET['ids']).replace("'","\""))]
+        # result = request.GET['ids']
+        text = request.GET['searchtext']
+        print(result,text)
+        data = key.aggregate([
+            {"$match":{"$text":{"$search":text},"file":{"$in":result}}},
+            {"$unwind":"$original"},
+            {"$match":{"original.ktype":"body"}},
+            {"$sort":{"original.order":1}},
+            {"$group":{"_id":"$file","file":{"$first":"$file"},"keys":{"$push":"$original"}}},
+            {"$project":{"_id":0,"file":1,"keys":{"$slice":["$keys",3]}}},
+            {"$unwind":"$keys"},
+            {"$lookup":{"from":"home_keyextract","let":{"site":"$file","ord":"$keys"},"pipeline":[
+                {"$match":{"$expr":{"$eq":["$file","$$site"]}}},
+                {"$unwind":"$original"},
+                {"$match":{"original.ktype":"body","$expr":{"$and":[
+                    {"$gt":["$original.order",{"$sum":["$$ord.order",-25]}]},
+                    {"$lt":["$original.order",{"$sum":["$$ord.order",25]}]}
+                ]}}},
+                {"$sort":{"original.order":1}},
+                {"$group":{"_id":"$file","content":{"$push":"$original"}}},
+                {"$project":{"_id":0,"value":"$content"}}
+                ],"as":"content"}},
+            {"$unwind":"$content"},
+            {"$lookup":{
+                "from":"home_sitedetail","localField":"file","foreignField":"_id","as":"site"}
+            },{"$unwind":"$site"},
+            {"$group":{"_id":"$file","content":{"$push":"$content"},"url":{"$first":"$site.url"},"title":{"$first":"$site.title"}}},
+            ])
+        result = []
+        for i in data:
+            tmp=[]
+            for j in i["content"]:
+                for k in j["value"]:
+                    tmp.append(k) if k not in tmp else False
+            i["content"]=' '.join([t["original"] for t in tmp])[:250]
+            result.append(i)
         return render(request,'home/result_viewer.html',context={'result':result})
 
 
-# def result(request,newsearch=True):
-#     def resultprep(searchtext):
-#         checkd=search_text.objects.filter(search_text=searchtext)
-#         if len(checkd)>0:
-#             checkd[0].visit_couont+=1
-#             checkd[0].save()
-#         else:
-#             creater=search_text(search_text=searchtext)
-#             creater.save()
-#         keys=searchtext.split()
-#         ids=[]
-#         for key in keys:
-#             search_result = indexing.objects.filter(key__contains=key)
-#             for items in search_result:
-#                 contents = json.loads(items.site_id,encoding="utf-8")
-#                 for item in contents:
-#                     ids.append(item['id'])
-#         ids = list(set(ids))
-#         key_str=json.dumps(ids,ensure_ascii=False)
-#         request.session[searchtext]=key_str
-#         print(request.session[searchtext])
-#         return ids
-#         # fn resultprep ends
-
-#     if request.method == 'GET':
-#         searchtext = request.GET['search-text']
-#         if 'page' in request.GET:
-#             try:
-#                 page=int(request.GET['page'])
-#             except:
-#                 return HttpResponse("False Page Number")
-#         else:
-#             page=1
-#         if searchtext not in request.session:
-#             if searchtext == '':
-#                 return render(request,'home/home_page.html')
-#             ids=resultprep(searchtext)
-#         else:
-#             ids = json.loads(request.session[searchtext])
-#         page_count=int(math.ceil(len(ids)/10))
-#         ids = ids[(page-1)*10:page*10]
-#         return render(request, 'home/result_page.html', context={'search': ids, 'search_text': searchtext,'page_count':page_count,'page':page})
-#     else:
-#         return HttpResponse("Failed to search.")
-
-
 class ResultView(ListView):
-    model = indexing
-    template_name='home/result_page.html'
+    model = Index
+    template_name = 'home/result_page.html'
     context_object_name = 'search'
     paginate_by = 20
 
     def get_queryset(self):
         searchtext = self.request.GET['search-text']
-        checkd=search_text.objects.filter(search_text=searchtext)
-        if len(checkd)>0:
-            checkd[0].visit_couont+=1
-            checkd[0].save()
+        checked = searchText.find_one({"search_text":searchtext})
+        if checked:
+            searchText.update({"search_text":searchtext,},{"$inc":{"visit_count":1}})
         else:
-            creater=search_text(search_text=searchtext)
-            creater.save()
-        keys=searchtext.split()
-        # ids=indexing.objects.none()
-        ids = []
-        for key in keys:
-            for data in indexing.objects.filter(key__contains=key):
-                for obj in json.loads(data.site_id):
-                    ids.append(obj['id'])
-        arrivals = sorted({i:ids.count(i) for i in set(ids)}.items(),key = lambda kv:kv[1], reverse=True)
-        sorted_id = []
-        for kv in arrivals:
-            sorted_id.append(kv[0])
-        return sorted_id
+            searchText.insert_one({"search_text":searchtext,"visit_count":1,"priority":0})
+        '''Complex pymongo data search and match'''
+        data = Index.aggregate([
+            {"$match":{"$text":{"$search":searchtext}}},
+            {"$addFields":{"score":{"$meta":"textScore"}}},
+            {"$unwind":"$sites"},
+            {"$group":{"_id":"$sites","count":{"$sum":1},"score":{"$sum":"$score"}}},
+            {"$lookup":{"from":"home_siterank","localField":"_id","foreignField":"site","as":"rank"}},
+            {"$project":{"count":"$count","score":"$score","ranke":{"$first":"$rank.rank"}}},
+            {"$project":{"count":"$count","ranke":"$ranke","score":"$score","trank":{"$add":["$count","$ranke","$score"]}}},
+            {"$sort":{"trank":-1}}])
+        return [str(i["_id"]) for i in data]
 
+    '''Adding search text in context'''
     def get_context_data(self, **kwargs):
         searchtext = self.request.GET['search-text']
         context = super().get_context_data(**kwargs)
         context['searchtext'] = searchtext
+        # print(len(context),context)
         return context
-
-def add_site(request):
-    with open("home/templates/home/test_file.json", "w") as j:
-        cont = {
-            "title": "Father",
-            "summary": "A good man",
-            "family": ["wife", "children"]
-        }
-        store = json.dumps(cont, indent=2)
-        if (j.write(store)):
-            return HttpResponse("Successful")
-        else:
-            return HttpResponse("Failed")
 
 
 def feedBack(request):
@@ -137,11 +120,10 @@ def feedBack(request):
             name=request.POST['name']
             email=request.POST['email']
             desc=request.POST['desc']
-            q5= feedback(name=name, email=email, desc=desc)
-            q5.save()
+            q5= fb.insert_one({"name":name,"email":email,"desc":desc,"report_date":timezone.now(),"ack":False})
             if not q5:
                 print("Failed TO save")
-            # print(name,email,desc)
+            
 
         except (KeyError,ValueError):
             return HttpResponse("False")
@@ -151,5 +133,8 @@ def feedBack(request):
 
     else:
         print("i am out")
+        return "Wrong RequestMethod"
 
 
+def aboutus(request):
+    return render(request,'home/about_us.html')

@@ -17,7 +17,7 @@ Database - KhojAdmin
 		Message
 	</div>
 	<div class="action d-flex justify-content-between flex-wrap">
-		<div class="action-items d-flex justify-content-between align-items-center">
+		<div class="action-items d-flex justify-content-between align-items-center ">
 			<div class="p-3 d-flex action-item align-items-center justify-content-between">
 				<a class="text-white shadow-hover" href="#" id="crawlad" data-target= "changecrawl">
 					<div class="text-center bg-dark text-white m-3 p-2 action-width d-flex align-items-center justify-content-center">
@@ -30,6 +30,20 @@ Database - KhojAdmin
 				</div>
 				</div>
 				
+			</div>
+			<div class="p-3 d-flex action-item align-items-center justify-content-between">
+				<a class="text-white shadow-hover" href="{% url 'khojadmin:collections' %}">
+					<div class="text-center bg-dark text-white m-3 p-2 action-width d-flex align-items-center justify-content-center">
+						<div class="text" id ="managedata">ManageData</div>
+					</div>
+				</a>
+			</div>
+			<div class="p-3 d-flex action-item align-items-center justify-content-between">
+				<a class="text-white shadow-hover" href="{% url 'khojadmin:sites' %}">
+					<div class="text-center bg-dark text-white m-3 p-2 action-width d-flex align-items-center justify-content-center">
+						<div class="text" id ="sitesid">Sites</div>
+					</div>
+				</a>
 			</div>
 		</div>
 	</div>
@@ -127,4 +141,4 @@ Database - KhojAdmin
 </script>
 {% endblock body %}
 
-
+{% block searchdiv %}{% endblock %}

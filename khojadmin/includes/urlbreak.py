@@ -23,7 +23,7 @@ def get_domain(url, shrink=False):
         try:
             return url_recheck(url='http://www.' + url)
         except Exception:
-            raise ("False URL:" + url)
+            raise ("FalseURL:" + url)
 
 
 def extract(url):
@@ -62,4 +62,4 @@ def url_rebuild(url, base_url):
         elif re.match(r'^www', url):
             return 'http://' + url
         else:
-            return "False URL:" + url
+            return "FalseURL:" + url

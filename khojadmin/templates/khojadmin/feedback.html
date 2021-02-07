@@ -1,20 +1,12 @@
 {% extends 'khojadmin/header.html' %}
+{% load home_tags%}
 {% block title %}
 Feedback - KhojAdmin
 {% endblock %}
 {% block actionmain %}
 <div class="d-flex justify-content-between nav-bar">
     <h3 class="text-dark mb-4">Feedback</h3>
-    <div class="btn-group p-0">
-		  <button type="button" class="btn dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-		    Action
-		  </button>
-		  <form class="dropdown-menu dropdown-menu-right" method="GET" action="{% url 'khojadmin:adminaction' %}">
-		    <button name="readSelected" id="rds"class="dropdown-item" type="submit">Mark Read Selected</button>
-		    <button name="deleteSelected" id="des" class="dropdown-item" type="submit">Delete Selected</button>
-		    <button class="dropdown-item" type="button">Alter Read</button>
-		  </form>
-		</div>
+    
 </div>
 
 {% endblock actionmain %}
@@ -32,43 +24,21 @@ Feedback - KhojAdmin
 	{% if data %}
 		<ul class="list-group">
 			{% for item in data %}
-				
 			<li class="list-group-item ">
-				<a href="{% url 'khojadmin:feedbackdetail' item.id %}" class="d-sm-flex justify-content-between nav-link p-0">
-					<div class="desc">{{item.least_desc}}</div>
+				<div  class="d-sm-flex justify-content-between nav-link p-0">
+					<a href="{% url 'khojadmin:feedbackdetail' item|private:'_id'%}" class="desc">{{item|least_desc:'desc'}}</a>
 					<div class="date">{{item.report_date}}</div>
 					<div class="forms d-flex flex-nowrap align-items-baseline">
-						<input type="checkbox" value = "{{item.pk}}"class = "check"title="Select this message">
 						<form method="GET" action="{% url 'khojadmin:adminaction' %}">
-							<button type="submit" name = "check" class="bg-none b-none" value="{{item.pk}}"><i class="fa fa-check"></i></button>
-						</form>
-						<form method="GET" action ="{% url 'khojadmin:adminaction' %}"><button type="submit" name="delete"class="bg-none b-none" value="{{item.pk}}"><i class="fa fa-trash"></i></button>
+							{% if not item.ack %}
+							<button type="submit" name = "check" class="bg-none b-none" value="{{item|private:'_id'}}"><i class="fa fa-check"></i></button>
+							{% endif %}
+							<button type="submit" name="delete"class="bg-none b-none" value="{{item|private:'_id'}}"><i class="fa fa-trash"></i></button>
 						</form>
 					</div>
-				</a>
+				</div>
 			</li>
 			{% endfor %}
-			<script type="text/javascript">
-				var data=[]
-				var checks = document.getElementsByClassName("check");
-				var rds = document.getElementById("rds");
-				var des = document.getElementById("des");
-				for (var i=0;i<checks.length;i++){
-					var checked = checks[i].addEventListener("change",
-						function(){
-							if (this.checked == true){
-								data.push(parseInt(this.value))
-							}
-							else{
-								data.pop(parseInt(this.value))
-							}
-							rds.setAttribute("value",JSON.stringify(data))
-							des.setAttribute("value",JSON.stringify(data))
-						},
-						false);
-				}
-			
-			</script>
 		</ul>
 	{% else %}
 		<h1>No Data Found</h1>

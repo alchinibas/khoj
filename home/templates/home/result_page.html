@@ -15,30 +15,6 @@
 	<div class=" d-block text-center w-100" style="position:fixed;z-index:1009;">
 		<div class="message-box form-control d-none text-center text-white" id="messagebox"></div>
 	</div>
-	<div class="modal fade" id="featuremodal" tabindex="-1" role="dialog" aria-hidden="true">
-	  <div class="modal-dialog" role="document">
-	    <div class="modal-content">
-	      <div class="modal-header">
-	        <h5 class="modal-title" id="customimg">Custom Background</h5>
-	        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-	          <span aria-hidden="true">&times;</span>
-	        </button>
-	      </div>
-	      <div class="modal-body">
-	        <form>
-	          <div class="form-group">
-	            <input type="file" class="form-control" id="bgimage">
-	          </div>
-	  
-	        </form>
-	      </div>
-	      <div class="modal-footer">
-	        <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
-	        <button type="button" class="btn btn-primary">Set Background</button>
-	      </div>
-	    </div>
-	  </div>
-	</div>
 	<div class="modal fade" id="indexmodal" tabindex="-1" role="dialog" aria-hidden="true">
 	  <div class="modal-dialog" role="document">
 	    <div class="modal-content">
@@ -57,7 +33,7 @@
 	        </form>
 	      </div>
 	      <div class="modal-footer">
-	        <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+	        <button type="button" class="btn btn-secondary" data-dismiss="modal" id="icloser">Cancel</button>
 	        <button type="button" class="btn btn-primary" data-target ="indexer" id="indexbtn">Send</button>
 	      </div>
 	    </div>
@@ -68,35 +44,36 @@
 			<div class="logo">
 
 			</div>
-			<form method="GET" action="{% url 'home:result' %}" id = "search-form">
-				<div class="row justify-content-between">
-					<div class="col-sm-7 row">
+			<div class=" row justify-content-between flex-nowrap">
+			<form method="GET" action="{% url 'home:result' %}" id = "search-form" class="col-sm-7">
+				<div class="row flex-column">
+					<div class="col-sm-12 row">
 						<div class="input-group col-12">
-							<input type="text" class="form-control" value="{% if search_text %}{{search_text}}{%endif%}" id= "textInput" name="search-text" placeholder="KHOJ Search" autocomplete="off">
+							<input type="text" class="form-control" value="{% if searchtext %}{{searchtext}}{%endif%}" id= "textInput" name="search-text" placeholder="KHOJ Search" autocomplete="off">
 							<div class="input-group-prepend">
 								<button type="submit" class=" bg-white input-group-text"><img src="{% static 'home/images/khoj_icon.ico' %}" width="20px" ></button>
 							</div>
 						</div>
-						<div class="col-12" id="recommend" style="position:relative;transform:translate(0,100%);">
-							<div class="col-12" id="recommend1" style="position:absolute;z-index:2010;"></div>
-						</div>
-		      		</div>
-		      <div class="col-auto option-group text-right" data-target="dropfn" style="border-bottom:1px solid #555">
-		      	<div class="btn btn-outline-secondary" style="border-bottom:0px;">O1</div>
-		      	<div class="dropdown-menu hide" id="dropfn">
-		      		<ul class="list-unstyled">
-		      			<li class="btn btn-sm btn-light d-block text-left" data-target="#indexmodal" data-toggle="modal">Index my URL</li>
-		      			<li class="btn btn-sm btn-light d-block text-left">Our Shotcuts</li>
-		      			<li class="btn btn-sm btn-light d-block text-left " id="bgmode" data-target="night">Night Mode</li>
-		      			<li class="btn btn-sm btn-light d-block text-left" id="custombg" data-target="#featuremodal" data-toggle="modal" data-whatever="Image Location" aria-labelledby="customimg">Custom Background</li>
-		      			<li class="btn btn-sm btn-light d-block text-left">Reset Customs</li>
-		      			<li class="btn btn-sm btn-light d-block text-left">Donate us</li>
-		      			<li class="btn btn-sm btn-light d-block text-left">About Us</li>
-		      		</ul>
-		      	</div>
+						
+					  </div>
+					  <div class="" style="position:relative;">
+						<div class="col-12" id="recommend1" style="position:absolute;z-index:2010;"></div>
+					</div>
+				</div>
+			</form>
+				<div class=" option-group text-right" data-target="dropfn" style="border-bottom:1px solid #555">
+					<div class="btn btn-outline-secondary" style="border-bottom:0px;">O1</div>
+					<div class="dropdown-menu hide" id="dropfn">
+						<ul class="list-unstyled">
+							<li class="btn btn-sm btn-light d-block text-left" data-target="#indexmodal" data-toggle="modal">Index my URL</li>
+							<li class="btn btn-sm btn-light d-block text-left " id="bgmode" data-target="night">Night Mode</li>
+
+							<li class="btn btn-sm btn-light d-block text-left"><a href="{% url 'home:aboutus' %}">About Us</a></li>
+						</ul>
+					</div>
 		      </div>
 		    </div>
-			</form>
+		</div>
 		</div>
 	</div>
 	<div class="container mb-5" style="position:relative;">
@@ -121,7 +98,7 @@
 				</div>
 			</div>
 			<div class="recommend-area bg bglight1 col-sm-4 ">
-					Total pages if result :
+					Total pages if result :{{search}}{{searchtext}}
 			</div>
 			<div class="col-sm-7" style="display:flex; margin:0;justify-content:center; align-items:center; text-align:center;">
 				<div class="col" id = "pager">
@@ -207,7 +184,6 @@
 	var fbtn =document.getElementById("fsend");
 	fbtn.addEventListener("touchend",fsend,false);
 	fbtn.onclick = fsend;
-
 	function fsend(){
 	ff=0;
 	function csrfSafeMethod(method) {
@@ -254,16 +230,19 @@
 			fbtn.setAttribute("data-dismiss","modal");
 			document.getElementById("fcloser").click();
 			fbtn.setAttribute("data-dismiss","");
+			fbtn.innerHTML="Search"
 		}
 		}
 		});
 	}
 	{% if search %}
-	var ids={{search}}.toString()
 	var page_no=1;
+	var ids = JSON.stringify("{{search}}")
+	console.log(ids,typeof(ids))
+	var stext = "{{searchtext}}"
 	$.ajax({
 		url:"{%  url 'home:load-data1' %}",
-		data:{"page":{% if not page %}{{1}} {% else %}{{page}}{% endif%}, "ids":ids},
+		data:{"ids":"{{search}}","searchtext":stext},
 		method:"GET",
 		success:function(result){
 			document.getElementById('load-data1').innerHTML=result;
@@ -315,7 +294,13 @@
 			url:"{% url 'khojadmin:adminaction' %}",
 			success:function(res){
 				const messagebox = document.getElementById("messagebox");
-				messagebox.innerHTML = res;
+				if (res == "True"){
+					messagebox.innerHTML = "URL index request sent";
+				}
+				else{
+					messagebox.innerHTML = res;
+				}
+				document.getElementById("icloser").click()
 				messagebox.style.display = 'block';
 				messagebox.classList.add('text-info');
 				messagebox.classList.remove('d-none');
@@ -327,7 +312,6 @@
 
 
 </script>
-<script type="text/javascript" src="{% static 'home/jquery/jquery.min.js' %}"></script>
 <script type="text/javascript" src="{% static 'home/bootstrap431/js/bootstrap.min.js' %}"></script>
-<script type="text/javascript" src="{% static 'home/js/my_js.js' %}"></script>
+<script type="text/javascript" src="{% static 'home/js/my_js.js' %}"></script> 
 </html>
